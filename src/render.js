@@ -1,6 +1,16 @@
+import { skeletonAt, rigFor } from "./motion.js";
+import { buildMannequin } from "./mannequin.js";
 import { actorAt, ballAt } from "./model.js";
 const BLUE = "#3d91ff",
   ORANGE = "#fcad65";
+const contactsMapped = (s) =>
+  !s.videoBinding ||
+  s.contacts.every(
+    (c) =>
+      ![c.actor, c.time, c.height, c.x, c.z].some(
+        (f) => f.status === "unresolved",
+      ),
+  );
 export const boardPoint = (x, z) => ({
   x: 100 + x * 77.7778,
   y: 310 + z * 27.7778,
@@ -40,6 +50,18 @@ export function drawBoard(canvas, s, t, selected, draft = []) {
   c.fillText("OPPONENT COURT", 110, 40);
   c.fillText("NEAR TEAM · 9m", 110, 590);
   c.fillText("NET", 822, 315);
+  if (s.videoBinding?.state === "unbound") {
+    c.fillStyle = "#233e55";
+    c.font = "bold 20px system-ui";
+    c.fillText("LOCAL VIDEO · NO MAPPED PLAYER TRACKS", 145, 220);
+    c.font = "16px system-ui";
+    c.fillText(
+      "Start manual reconstruction to place and identify players.",
+      145,
+      250,
+    );
+    return;
+  }
   for (const a of s.actors) {
     const path = a.path.value.map((p) => boardPoint(p.x, p.z));
     c.strokeStyle = a.id === selected ? BLUE : "#9ab9d8";
@@ -70,7 +92,7 @@ export function drawBoard(canvas, s, t, selected, draft = []) {
     c.fillText(a.id, q.x, q.y + 4);
     c.textAlign = "left";
   }
-  const contacts = s.contacts;
+  const contacts = contactsMapped(s) ? s.contacts : [];
   for (let i = 0; i < contacts.length; i++) {
     const q = boardPoint(contacts[i].x.value, contacts[i].z.value);
     if (i) {
@@ -88,15 +110,17 @@ export function drawBoard(canvas, s, t, selected, draft = []) {
     c.font = "11px system-ui";
     c.fillText(contacts[i].id, q.x + 10, q.y - 15);
   }
-  const b = ballAt(s, t),
-    q = boardPoint(b.x, b.z);
-  c.fillStyle = "#ffe68c";
-  c.strokeStyle = "#384c58";
-  c.lineWidth = 2;
-  c.beginPath();
-  c.arc(q.x, q.y, 8, 0, 7);
-  c.fill();
-  c.stroke();
+  if (contactsMapped(s)) {
+    const b = ballAt(s, t),
+      q = boardPoint(b.x, b.z);
+    c.fillStyle = "#ffe68c";
+    c.strokeStyle = "#384c58";
+    c.lineWidth = 2;
+    c.beginPath();
+    c.arc(q.x, q.y, 8, 0, 7);
+    c.fill();
+    c.stroke();
+  }
   if (draft.length) {
     c.strokeStyle = "#1766d9";
     c.lineWidth = 4;
@@ -143,7 +167,7 @@ export function projectPoint(x, y, z) {
   return project(x, y, z);
 }
 
-export function drawScene(canvas, s, t) {
+export function drawScene(canvas, s, t, options = {}) {
   const c = canvas.getContext("2d"),
     w = canvas.width,
     h = canvas.height;
@@ -152,10 +176,54 @@ export function drawScene(canvas, s, t) {
   c.scale(scale, scale);
   c.fillStyle = "#102b3f";
   c.fillRect(0, 0, 900, 620);
-  const proj = projectPoint;
+  if (s.videoBinding?.state === "unbound") {
+    c.fillStyle = "#f0f6fb";
+    c.font = "bold 25px system-ui";
+    c.fillText("LOCAL VIDEO · 3D NOT RECONSTRUCTED", 55, 240);
+    c.font = "18px system-ui";
+    c.fillText("The sample animation has been cleared.", 55, 285);
+    c.fillText(
+      "Map observed frames and coach-provided constraints first.",
+      55,
+      320,
+    );
+    c.restore();
+    return;
+  }
+  let proj = projectPoint;
+  if (options.focusActor) {
+    const a = s.actors.find((a) => a.id === options.focusActor);
+    if (a) {
+      const p = actorAt(a, t),
+        camera = [p.x + 3.4, 3.6, p.z + 4.6],
+        target = [p.x, 1.55, p.z];
+      const unit = (v) => {
+          const n = Math.hypot(...v);
+          return v.map((x) => x / n);
+        },
+        f = unit(target.map((x, i) => x - camera[i])),
+        r = unit([-f[2], 0, f[0]]),
+        up = [
+          r[1] * f[2] - r[2] * f[1],
+          r[2] * f[0] - r[0] * f[2],
+          r[0] * f[1] - r[1] * f[0],
+        ];
+      proj = (x, y, z) => {
+        const v = [x - camera[0], y - camera[1], z - camera[2]],
+          d = v.reduce((a, b, i) => a + b * f[i], 0);
+        return {
+          x: 450 + (v.reduce((a, b, i) => a + b * r[i], 0) * 750) / d,
+          y: 310 - (v.reduce((a, b, i) => a + b * up[i], 0) * 750) / d,
+          depth: d,
+        };
+      };
+    }
+  }
+
   const line = (a, b, color, width = 2) => {
     const p = proj(...a),
       q = proj(...b);
+    if (p.depth <= 0.1 || q.depth <= 0.1) return;
     c.strokeStyle = color;
     c.lineWidth = width;
     c.beginPath();
@@ -164,6 +232,7 @@ export function drawScene(canvas, s, t) {
     c.stroke();
   };
   const poly = (points, color) => {
+    if (points.some((p) => proj(...p).depth <= 0.1)) return;
     c.fillStyle = color;
     c.beginPath();
     points.forEach((p, i) => {
@@ -200,6 +269,21 @@ export function drawScene(canvas, s, t) {
     ],
     "#d0a37f",
   );
+  if (options.focusActor) {
+    const a = s.actors.find((a) => a.id === options.focusActor);
+    if (a) {
+      const p = actorAt(a, t);
+      poly(
+        [
+          [p.x - 2.5, 0, p.z - 2.5],
+          [p.x + 2.5, 0, p.z - 2.5],
+          [p.x + 2.5, 0, p.z + 2.5],
+          [p.x - 2.5, 0, p.z + 2.5],
+        ],
+        "#9b785b",
+      );
+    }
+  }
   for (const z of [-9, -3, 0, 3, 9])
     line([0, 0.03, z], [9, 0.03, z], "#f6ede0", 2);
   line([0, 0.03, -9], [0, 0.03, 9], "#f6ede0");
@@ -213,74 +297,125 @@ export function drawScene(canvas, s, t) {
   for (const a of [...s.actors].sort(
     (a, b) => actorAt(a, t).z - actorAt(b, t).z,
   )) {
-    const p = actorAt(a, t);
-    const contact = s.contacts.find(
-      (e) => e.actor.value === a.id && Math.abs(e.time.value - t) < 0.45,
-    );
-    const phase = t * 8;
-    const before = actorAt(a, Math.max(0, t - 0.03)),
-      after = actorAt(a, t + 0.03);
-    const moving = Math.hypot(after.x - before.x, after.z - before.z) > 0.008;
-    const swing = moving ? Math.sin(phase) * 0.28 : 0;
-    const jump =
-      contact && /attack/.test(contact.action.value)
-        ? Math.max(0, 1 - Math.abs(contact.time.value - t) / 0.45) * 0.5
-        : 0;
-    const color = p.z < 0 ? ORANGE : BLUE;
-    const hip = [p.x, 0.9 + jump, p.z],
-      shoulder = [p.x, 1.48 + jump, p.z],
-      head = proj(p.x, 1.78 + jump, p.z);
-    const ground = proj(p.x, 0.02, p.z);
-    c.fillStyle = "#0a253957";
-    c.beginPath();
-    c.ellipse(ground.x, ground.y, 13, 5, 0, 0, 7);
-    c.fill();
-    line(hip, shoulder, color, 11);
-    for (const side of [-1, 1]) {
-      const knee = [p.x + side * 0.13, 0.48 + jump, p.z + swing * side],
-        foot = [p.x + side * 0.19, 0.05 + jump, p.z - swing * side];
-      line([p.x + side * 0.1, 0.9 + jump, p.z], knee, color, 5);
-      line(knee, foot, "#d5e7ed", 4);
-      const elbow = [p.x + side * 0.3, contact ? 1.8 + jump : 1.1 + jump, p.z];
-      const hand = [
-        p.x + side * 0.25,
-        contact ? Math.min(3.2, contact.height.value) : 0.95 + jump,
-        p.z + 0.17,
-      ];
-      line([p.x + side * 0.16, 1.45 + jump, p.z], elbow, color, 4);
-      line(elbow, hand, "#d8ad8b", 4);
+    const pose = skeletonAt(s, a, t),
+      j = pose.joints,
+      color = pose.root.z < 0 ? ORANGE : BLUE;
+    if (options.focusActor && a.id !== options.focusActor) continue;
+    if (options.compareTo && options.focusActor === a.id) {
+      const old = skeletonAt(options.compareTo, a, t);
+      c.setLineDash([4, 4]);
+      for (const hand of ["leftHand", "rightHand"]) {
+        const q = proj(...old.joints[hand]);
+        c.strokeStyle = "#d6e3ed";
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.arc(q.x, q.y, 7, 0, 7);
+        c.stroke();
+        line(old.joints[hand], j[hand], "#ffe093", 2);
+      }
+      c.setLineDash([]);
     }
-    c.fillStyle = "#e2b998";
+    const ground = proj(pose.root.x, 0.02, pose.root.z);
+    c.fillStyle = "#09213477";
     c.beginPath();
-    c.arc(head.x, head.y, 7, 0, 7);
+    c.ellipse(ground.x, ground.y, 16, 6, 0, 0, 7);
     c.fill();
-    const label = proj(p.x, 2.2 + jump, p.z);
+    const surfaces = buildMannequin(
+      pose,
+      rigFor(s, a.id),
+      color,
+      options.focusActor ? 10 : 6,
+    )
+      .map((face) => ({
+        ...face,
+        projected: face.points.map((p) => proj(...p)),
+      }))
+      .filter((face) => face.projected.every((p) => p.depth > 0.1));
+    surfaces.sort(
+      (a, b) =>
+        b.projected.reduce((v, p) => v + p.depth, 0) / b.projected.length -
+        a.projected.reduce((v, p) => v + p.depth, 0) / a.projected.length,
+    );
+    for (const face of surfaces) {
+      c.fillStyle = face.color;
+      c.beginPath();
+      face.projected.forEach((p, i) =>
+        i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y),
+      );
+      c.closePath();
+      c.fill();
+    }
+    if (options.showJoints)
+      for (const side of ["left", "right"])
+        for (const name of [
+          "Shoulder",
+          "Elbow",
+          "Wrist",
+          "Hip",
+          "Knee",
+          "Ankle",
+        ]) {
+          const q = proj(...j[side + name]);
+          c.fillStyle = "#ffdf90";
+          c.beginPath();
+          c.arc(q.x, q.y, options.focusActor ? 3 : 1.5, 0, 7);
+          c.fill();
+        }
+    const label = proj(
+      pose.root.x,
+      Math.max(j.head[1] + 0.3, pose.params.handHeight + 0.15),
+      pose.root.z,
+    );
     c.fillStyle = "#e9f3fa";
-    c.font = "bold 11px system-ui";
+    c.font = options.focusActor ? "bold 14px system-ui" : "bold 11px system-ui";
     c.textAlign = "center";
-    c.fillText(a.id, label.x, label.y);
+    c.fillText(
+      a.id + (options.focusActor ? " · " + pose.phase : ""),
+      label.x,
+      label.y,
+    );
     c.textAlign = "left";
   }
-  const b = ballAt(s, t),
-    q = proj(b.x, b.y, b.z),
-    shadow = proj(b.x, 0.02, b.z);
-  c.fillStyle = "#0c243c60";
-  c.beginPath();
-  c.ellipse(shadow.x, shadow.y, 8, 3, 0, 0, 7);
-  c.fill();
-  c.fillStyle = "#ffdc61";
-  c.strokeStyle = "#fff4b6";
-  c.lineWidth = 1.4;
-  c.beginPath();
-  c.arc(q.x, q.y, 5.5, 0, 7);
-  c.fill();
-  c.stroke();
+  if (contactsMapped(s)) {
+    const b = ballAt(s, t),
+      q = proj(b.x, b.y, b.z),
+      shadow = proj(b.x, 0.02, b.z);
+    c.fillStyle = "#0c243c60";
+    c.beginPath();
+    c.ellipse(shadow.x, shadow.y, 8, 3, 0, 0, 7);
+    c.fill();
+    c.fillStyle = "#ffdc61";
+    c.strokeStyle = "#fff4b6";
+    c.lineWidth = 1.4;
+    c.beginPath();
+    c.arc(q.x, q.y, 5.5, 0, 7);
+    c.fill();
+    c.stroke();
+  }
   c.fillStyle = "#b0cad9";
   c.font = "11px system-ui";
-  c.fillText("VOLLEYUPCAST / TEMPLATE MOTION", 22, 30);
+  c.fillText(
+    s.videoBinding
+      ? "VOLLEYUPCAST / COACH-CREATED MANUAL ILLUSTRATION"
+      : "VOLLEYUPCAST / TEMPLATE MOTION",
+    22,
+    30,
+  );
+  if (s.sample?.kind === "match") {
+    c.fillText(
+      "UVG-VCM · Ultra Video Group, Tampere University · CC BY4.0",
+      22,
+      48,
+    );
+    c.fillText(
+      "MANUAL TWO-PLAYER EXCERPT · uncertain depth/impact · source 1.50–2.70s",
+      22,
+      564,
+    );
+  }
   c.fillStyle = s.approval?.mode === "final" ? "#b9ded5" : "#ffe0a4";
   c.fillText(
-    `${s.approval?.mode === "final" ? "COACH-REVIEWED TACTICAL SCENE" : "ILLUSTRATIVE · NOT AN EXACT REPLAY"}   |   t ${t.toFixed(2)} s`,
+    `${s.approval?.mode === "final" ? "COACH-REVIEWED TACTICAL SCENE" : "ILLUSTRATIVE · NOT AN EXACT REPLAY"}   |   t ${t.toFixed(2)} s${s.sample?.kind === "match" ? " / source " + (t + s.clocks.videoOffset.value).toFixed(2) + "s" : ""}`,
     22,
     590,
   );

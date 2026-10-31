@@ -1,0 +1,890 @@
+{
+  "schemaVersion": 1,
+  "id": "uvg-match-manual-v1",
+  "title": "REAL UVG-VCM clip · manual 1.50–2.70s excerpt",
+  "revision": 1,
+  "approval": null,
+  "reviewedRevision": null,
+  "duration": 1.2,
+  "actors": [
+    {
+      "id": "M3",
+      "role": {
+        "value": "near right-side jumper · anonymous visual track",
+        "status": "inferred-awaiting-review",
+        "source": "Manual visual track description, not a player identity or confirmed positional role"
+      },
+      "rotation": {
+        "value": 0,
+        "status": "flexible-not-applicable",
+        "source": "Rotation not needed for this two-player excerpt"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 7.4,
+            "z": 0.85
+          },
+          {
+            "t": 1.2,
+            "x": 7.4,
+            "z": 0.85
+          }
+        ],
+        "status": "inferred-awaiting-review",
+        "source": "Approximate stationary court placement for the net exchange; horizontal travel/depth not calibrated from source"
+      }
+    },
+    {
+      "id": "B6",
+      "role": {
+        "value": "opposite net jumper · anonymous visual track",
+        "status": "inferred-awaiting-review",
+        "source": "Manual visual track description, not a player identity or confirmed positional role"
+      },
+      "rotation": {
+        "value": 0,
+        "status": "flexible-not-applicable",
+        "source": "Rotation not needed for this two-player excerpt"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 7.05,
+            "z": -0.35
+          },
+          {
+            "t": 1.2,
+            "x": 7.05,
+            "z": -0.35
+          }
+        ],
+        "status": "inferred-awaiting-review",
+        "source": "Approximate stationary court placement for the net exchange; horizontal travel/depth not calibrated from source"
+      }
+    }
+  ],
+  "contacts": [
+    {
+      "id": "attack",
+      "after": [],
+      "actor": {
+        "value": "M3",
+        "status": "inferred-awaiting-review",
+        "source": "Near right-side jumper; manually associated at source approximately 2.02s"
+      },
+      "action": {
+        "value": "attack",
+        "status": "inferred-awaiting-review",
+        "source": "Visible overhead swing; exact impact frame uncertain ±0.05s"
+      },
+      "time": {
+        "value": 0.5166666666666667,
+        "status": "observed",
+        "source": "Manual approximate impact window source 2.0167s, rally origin source 1.50s"
+      },
+      "height": {
+        "value": 2.75,
+        "status": "inferred-awaiting-review",
+        "source": "Illustrative height; monocular image does not establish metres",
+        "range": [2.4, 3.2]
+      },
+      "x": {
+        "value": 7.4,
+        "status": "inferred-awaiting-review",
+        "source": "Uncalibrated court placement"
+      },
+      "z": {
+        "value": 0.85,
+        "status": "inferred-awaiting-review",
+        "source": "Uncalibrated court depth"
+      },
+      "apex": {
+        "value": 2.9,
+        "status": "inferred-awaiting-review",
+        "source": "Illustrative short attack/block segment"
+      }
+    },
+    {
+      "id": "block",
+      "after": ["attack"],
+      "actor": {
+        "value": "B6",
+        "status": "inferred-awaiting-review",
+        "source": "Opposite net jumper; hand/ball overlap near source 2.08s, occlusion uncertain"
+      },
+      "action": {
+        "value": "block",
+        "status": "inferred-awaiting-review",
+        "source": "Possible hand-ball contact; coach must resolve overlap/deflection ambiguity"
+      },
+      "time": {
+        "value": 0.5833333333333334,
+        "status": "observed",
+        "source": "Manual approximate overlap window source 2.0833s; not frame-exact impact"
+      },
+      "height": {
+        "value": 2.75,
+        "status": "inferred-awaiting-review",
+        "source": "Illustrative height; depth and exact contact unresolved",
+        "range": [2.4, 3.2]
+      },
+      "x": {
+        "value": 7.05,
+        "status": "inferred-awaiting-review",
+        "source": "Uncalibrated court placement"
+      },
+      "z": {
+        "value": -0.35,
+        "status": "inferred-awaiting-review",
+        "source": "Uncalibrated court depth"
+      },
+      "apex": {
+        "value": 2.9,
+        "status": "inferred-awaiting-review",
+        "source": "End of illustrated exchange; rest of rally not reconstructed"
+      }
+    }
+  ],
+  "ball": {
+    "category": {
+      "value": "indoor volleyball",
+      "status": "observed",
+      "source": "Real indoor source clip"
+    },
+    "action": {
+      "value": "attack → possible block",
+      "status": "inferred-awaiting-review",
+      "source": "Manual partial exchange; later rally not reconstructed"
+    },
+    "style": {
+      "value": "illustrative segment; not a fitted physical trajectory",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "tempo": {
+      "value": "not established",
+      "status": "unresolved",
+      "source": "Requires coach confirmation"
+    },
+    "spin": {
+      "value": "unknown",
+      "status": "flexible-not-applicable",
+      "source": "Spin is not resolved"
+    }
+  },
+  "tactic": {
+    "name": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "primitive": {
+      "value": "net attack / possible block exchange",
+      "status": "inferred-awaiting-review",
+      "source": "Manual interpretation of visible motion"
+    },
+    "playerId": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "setterId": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "approachStartCue": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "approachPath": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "takeoffRegion": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "landingRegion": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "contactTiming": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "contactHeightRange": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "setTempo": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "attackTarget": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "handednessTechnique": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "blockerBehavior": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "coverageBehavior": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    },
+    "jointDetail": {
+      "value": "Not applicable to this partial two-player excerpt",
+      "status": "flexible-not-applicable",
+      "source": "No full-rally or slide classification is asserted"
+    }
+  },
+  "transcript": {
+    "value": "AUTHORED ANNOTATOR NOTES — not a real coach recording. Real UVG-VCM source has no audio.\n[source 1.50–2.70s] Only two anonymous net players are illustrated; other players and the remainder of the 10-second rally are not reconstructed.\n[source 1.80s] Near right-side jumper has a cocked arm; approximate visible shoulder/elbow/wrist points guide a conditional vertical-plane pose.\n[source about 2.02s ±0.05s] Overhead attack hand/ball overlap.\n[source about 2.08s ±0.05s] Possible opposite blocker contact; overlap/occlusion requires coach confirmation.\n[source 2.17s] Follow-through arm points guide the next key. Court positions, heights, body depth and jump lift are illustrative assumptions. Correct them and review before exporting.",
+    "status": "coach-provided",
+    "source": "Authored by prototype annotator from inspected source frames; no speech transcription"
+  },
+  "clocks": {
+    "videoOffset": {
+      "value": 1.5,
+      "status": "coach-provided",
+      "source": "Annotator chose source 1.50s as excerpt rally zero; source clip remains 10s"
+    },
+    "speechOffset": {
+      "value": 0,
+      "status": "flexible-not-applicable",
+      "source": "Source has no audio; supplied text is authored annotation"
+    },
+    "animationRate": {
+      "value": 1,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "fps": {
+      "value": 60,
+      "status": "observed",
+      "source": "Official MP4 and decoded frame metadata"
+    }
+  },
+  "observations": [
+    {
+      "id": "uvg-0",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightShoulder",
+      "videoTime": 1.8,
+      "rallyTime": 0.30000000000000004,
+      "x": 0.7208333333333333,
+      "y": 0.4722222222222222,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-1",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightElbow",
+      "videoTime": 1.8,
+      "rallyTime": 0.30000000000000004,
+      "x": 0.7307291666666667,
+      "y": 0.4398148148148148,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-2",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightWrist",
+      "videoTime": 1.8,
+      "rallyTime": 0.30000000000000004,
+      "x": 0.7072916666666667,
+      "y": 0.4166666666666667,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-3",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightShoulder",
+      "videoTime": 2.1666666666666665,
+      "rallyTime": 0.6666666666666665,
+      "x": 0.7213541666666666,
+      "y": 0.4675925925925926,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-4",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightElbow",
+      "videoTime": 2.1666666666666665,
+      "rallyTime": 0.6666666666666665,
+      "x": 0.6979166666666666,
+      "y": 0.49074074074074076,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-5",
+      "kind": "pose joint",
+      "actorId": "M3",
+      "jointName": "rightWrist",
+      "videoTime": 2.1666666666666665,
+      "rallyTime": 0.6666666666666665,
+      "x": 0.6770833333333334,
+      "y": 0.5,
+      "note": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-6",
+      "kind": "contact",
+      "actorId": "M3",
+      "videoTime": 2.0166666666666666,
+      "rallyTime": 0.5166666666666666,
+      "x": 0.6979166666666666,
+      "y": 0.3685185185185185,
+      "note": "Approximate attack hand/ball overlap; inspect ±0.05s, no exact impact claim",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    },
+    {
+      "id": "uvg-7",
+      "kind": "contact",
+      "actorId": "B6",
+      "videoTime": 2.0833333333333335,
+      "rallyTime": 0.5833333333333335,
+      "x": 0.6822916666666666,
+      "y": 0.3648148148148148,
+      "note": "Possible block hand/ball overlap, partly occluded; inspect ±0.05s",
+      "calibrationId": "uvg-fixed-observation-window",
+      "status": "observed"
+    }
+  ],
+  "calibrations": [
+    {
+      "id": "uvg-fixed-observation-window",
+      "validFrom": 0,
+      "validUntil": 10,
+      "landmarks": [],
+      "status": "inferred-awaiting-review"
+    }
+  ],
+  "branches": [],
+  "sample": {
+    "kind": "match",
+    "id": "uvg-match-manual-v1",
+    "baselineRevision": 1,
+    "source": {
+      "value": "UVG-VCM — Volleyball Game, Ultra Video Group, Tampere University, CC BY4.0; resized 3840×2160 → 1280×720, H.264 recompressed; no audio",
+      "status": "observed",
+      "source": "https://tie-ultravideo.rd.tuni.fi/UVG-VCM/index.html"
+    },
+    "clip": {
+      "value": "./examples/uvg-volleyball-match.mp4",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "clipDuration": {
+      "value": 10,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "timingTolerance": {
+      "value": 0.05,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    }
+  },
+  "videoBinding": {
+    "state": "manual",
+    "source": "Real licensed UVG-VCM clip; manually marked frames, conditional arm-plane fit, unmeasured 3D depth. Only the 1.50–2.70s attack/block excerpt is illustrated."
+  },
+  "motion": {
+    "version": 1,
+    "rigs": {
+      "M3": {
+        "shoulderHeight": {
+          "value": 1.48,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "shoulderWidth": {
+          "value": 0.42,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "upperArm": {
+          "value": 0.42,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "forearm": {
+          "value": 0.42,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "thigh": {
+          "value": 0.46,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "shin": {
+          "value": 0.46,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "pelvisWidth": {
+          "value": 0.28,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "torsoDepth": {
+          "value": 0.24,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "headWidth": {
+          "value": 0.18,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "headHeight": {
+          "value": 0.24,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "headDepth": {
+          "value": 0.2,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "armRadius": {
+          "value": 0.055,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "legRadius": {
+          "value": 0.075,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "palmWidth": {
+          "value": 0.085,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        },
+        "footWidth": {
+          "value": 0.1,
+          "status": "approved-illustrative-default",
+          "source": "Unmeasured articulated template rig"
+        }
+      }
+    },
+    "keys": [
+      {
+        "id": "pose-M3-0.300",
+        "actorId": "M3",
+        "eventId": "attack",
+        "time": {
+          "value": 0.30000000000000004,
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "span": {
+          "value": 0.18,
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "phase": {
+          "value": "attack",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "plant": {
+          "value": "auto",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "params": {
+          "handHeight": {
+            "value": 2.451902488425926,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "handWidth": {
+            "value": 0.4018518518518518,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "handForward": {
+            "value": -0.01307146990740743,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "jumpHeight": {
+            "value": 0.4098423683198771,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "kneeBend": {
+            "value": 12.074074074074073,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoYaw": {
+            "value": 180,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoLean": {
+            "value": -5.9259259259259265,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "wristFlex": {
+            "value": 11.111111111111112,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "stanceWidth": {
+            "value": 0.45,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "elbowOut": {
+            "value": 0.5,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "footYaw": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "compression": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoTwist": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "swingBlend": {
+            "value": 1,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightSwing": {
+            "value": 180,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightAbduction": {
+            "value": 28.495638618244982,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightElbowBend": {
+            "value": 89.44103451916784,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightElbowPlane": {
+            "value": -90,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightForearmTwist": {
+            "value": -45,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftSwing": {
+            "value": 90,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftAbduction": {
+            "value": 10,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftElbowBend": {
+            "value": 45,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftElbowPlane": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftForearmTwist": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          }
+        },
+        "depth": {
+          "value": "Illustrative template depth; not recovered from monocular video",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "imageJoints": {
+          "rightShoulder": {
+            "value": {
+              "x": 0.7208333333333333,
+              "y": 0.4722222222222222
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          },
+          "rightElbow": {
+            "value": {
+              "x": 0.7307291666666667,
+              "y": 0.4398148148148148
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          },
+          "rightWrist": {
+            "value": {
+              "x": 0.7072916666666667,
+              "y": 0.4166666666666667
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          }
+        },
+        "imageFit": {
+          "value": "Conditional vertical-plane arm fit; coach plane facing 180 degrees, image aspect 1.7778; foreshortening and depth not recovered",
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "videoTime": {
+          "value": 1.8,
+          "status": "observed",
+          "source": "Coach-selected local source frame; joint depth remains illustrative"
+        }
+      },
+      {
+        "id": "pose-M3-0.667",
+        "actorId": "M3",
+        "eventId": "attack",
+        "time": {
+          "value": 0.6666666666666665,
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "span": {
+          "value": 0.18,
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "phase": {
+          "value": "attack",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "plant": {
+          "value": "auto",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "params": {
+          "handHeight": {
+            "value": 2.5201866181156127,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "handWidth": {
+            "value": 0.3770368684569867,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "handForward": {
+            "value": 0.15,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "jumpHeight": {
+            "value": 0.5060553633217997,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "kneeBend": {
+            "value": 11.081474738279468,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoYaw": {
+            "value": 180,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoLean": {
+            "value": -6.918525261720531,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "wristFlex": {
+            "value": 12.972234865725996,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "stanceWidth": {
+            "value": 0.45,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "elbowOut": {
+            "value": 0.5,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "footYaw": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "compression": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "torsoTwist": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "swingBlend": {
+            "value": 1,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightSwing": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightAbduction": {
+            "value": -60.94539590092286,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightElbowBend": {
+            "value": 15.018360631150596,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightElbowPlane": {
+            "value": -90,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "rightForearmTwist": {
+            "value": 31.56249999999997,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftSwing": {
+            "value": 38.73046875000006,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftAbduction": {
+            "value": 10,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftElbowBend": {
+            "value": 45,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftElbowPlane": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          },
+          "leftForearmTwist": {
+            "value": 0,
+            "status": "inferred-awaiting-review",
+            "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+          }
+        },
+        "depth": {
+          "value": "Illustrative template depth; not recovered from monocular video",
+          "status": "inferred-awaiting-review",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "imageJoints": {
+          "rightShoulder": {
+            "value": {
+              "x": 0.7213541666666666,
+              "y": 0.4675925925925926
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          },
+          "rightElbow": {
+            "value": {
+              "x": 0.6979166666666666,
+              "y": 0.49074074074074076
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          },
+          "rightWrist": {
+            "value": {
+              "x": 0.6770833333333334,
+              "y": 0.5
+            },
+            "status": "observed",
+            "source": "Manual approximate visible right-arm point, ±15px at 1920×1080 inspection scale; side association and occlusion need coach review"
+          }
+        },
+        "imageFit": {
+          "value": "Conditional vertical-plane arm fit; coach plane facing 180 degrees, image aspect 1.7778; foreshortening and depth not recovered",
+          "status": "coach-provided",
+          "source": "Annotator conditional image-plane fit; unconfirmed 3D illustration, not measured depth"
+        },
+        "videoTime": {
+          "value": 2.1666666666666665,
+          "status": "observed",
+          "source": "Coach-selected local source frame; joint depth remains illustrative"
+        }
+      }
+    ]
+  }
+}

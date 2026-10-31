@@ -19,3 +19,6 @@ qa-local/
 
 # One explicit, generated public demonstration clip; user recordings stay ignored.
 !examples/sample-video.webm
+
+# One explicitly licensed UVG-VCM match excerpt; private uploads remain ignored.
+!examples/uvg-volleyball-match.mp4

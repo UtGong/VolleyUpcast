@@ -1,5 +1,6 @@
 import {
   demo,
+  RIG_LIMITS,
   STATUSES,
   field,
   revise,
@@ -11,6 +12,26 @@ import {
   parse,
 } from "./model.js";
 import { drawBoard, drawScene, unboard } from "./render.js";
+import {
+  PARAMS,
+  RIG,
+  PHASES,
+  JOINTS,
+  rigFor,
+  keyValues,
+  proposeCue,
+  fitObservedArms,
+  installKey,
+  previewPlan,
+  skeletonAt,
+} from "./motion.js";
+import { fetchSampleClip, waitForVideo } from "./media.js";
+import {
+  unbindVideo,
+  beginManualReconstruction,
+  setUnboundDuration,
+  sameLocalVideo,
+} from "./reconstruction.js";
 import { makeSample, builtInVideo, SAMPLE_INFO } from "./samples.js";
 const $ = (id) => document.getElementById(id);
 let s = demo(),
@@ -33,7 +54,12 @@ let s = demo(),
   pendingReplacement = null,
   sampleVideoURL = null,
   sampleVideoSource = "",
-  sampleMediaRevision = 0;
+  sampleMediaRevision = 0,
+  sampleLoading = false,
+  lastSampleKind = null,
+  pendingMotion = null,
+  poseFrameTime = null,
+  motionFormDirty = false;
 const el = (tag, text, cls) => {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text;
@@ -51,9 +77,11 @@ function snapshot() {
 function mutate(fn) {
   if (exporting) {
     notice("Stop or finish video export before editing.");
-    return;
+    return false;
   }
   snapshot();
+  pendingMotion = null;
+  motionFormDirty = false;
   try {
     fn();
     for (const o of s.observations)
@@ -62,10 +90,12 @@ function mutate(fn) {
     dirty = true;
     renderUI();
     store();
+    return true;
   } catch (e) {
     s = parse(history.pop());
     notice(e.message);
     renderUI();
+    return false;
   }
 }
 function store() {
@@ -84,14 +114,36 @@ function download(data, name, type) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+function sampleFeedback(phase, message) {
+  const box = $("load-feedback");
+  box.hidden = false;
+  box.dataset.phase = phase;
+  $("load-feedback-text").textContent = message;
+  $("retry-sample").hidden = phase !== "error";
+  box.setAttribute("role", phase === "error" ? "alert" : "status");
+}
+function focusWorkspace(kind) {
+  const pane = $(kind + "-pane");
+  pane.tabIndex = -1;
+  pane.focus({ preventScroll: true });
+  pane.scrollIntoView({ block: "start", behavior: "instant" });
+}
 function requestReplacement(action) {
+  if (sampleLoading) {
+    sampleFeedback("loading", "A sample is still loading. Please wait.");
+    return;
+  }
   if (exporting || recorder?.state === "recording") {
     notice("Finish export or recording before replacing a scene.");
     return;
   }
-  if (dirty || audioBlob) {
+  if (dirty || audioBlob || motionFormDirty) {
     pendingReplacement = action;
-    $("replace-dialog").showModal();
+    sampleFeedback(
+      "waiting",
+      "Confirm replacing the edited scene, or keep editing.",
+    );
+    if (!$("replace-dialog").open) $("replace-dialog").showModal();
   } else action();
 }
 async function syncSampleMedia() {
@@ -106,23 +158,33 @@ async function syncSampleMedia() {
       sampleVideoURL &&
       video.src === sampleVideoURL
     )
-      return;
+      return true;
     video.pause();
     video.removeAttribute("src");
     video.load();
     try {
-      const response = await fetch(target);
-      if (!response.ok) throw Error("Sample clip could not be loaded");
-      const blob = await response.blob();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      let blob;
+      try {
+        blob = await fetchSampleClip(target, controller.signal);
+      } finally {
+        clearTimeout(timeout);
+      }
       if (mediaRevision !== sampleMediaRevision || !builtInVideo(s)) return;
       if (sampleVideoURL) URL.revokeObjectURL(sampleVideoURL);
       sampleVideoURL = URL.createObjectURL(blob);
       sampleVideoSource = target;
       video.src = sampleVideoURL;
       video.load();
+      await waitForVideo(video);
+      return true;
     } catch (e) {
-      if (mediaRevision === sampleMediaRevision)
+      if (mediaRevision === sampleMediaRevision) {
         notice(e.message + ". Reload the video sample to retry.");
+        sampleFeedback("error", e.message + ". Use Retry sample.");
+      }
+      return false;
     }
   } else {
     if (sampleVideoURL) {
@@ -141,13 +203,23 @@ function sampleStatus() {
   const info = s.sample && SAMPLE_INFO[s.sample.kind];
   $("reset-sample").disabled = !info;
   $("active-sample").textContent = info
-    ? `${info.title} loaded · ${dirty ? "edited draft" : "supplied illustrative inputs"} · ${s.approval ? "review confirmed" : "review and confirmation still required"}. ${s.sample.kind === "video" ? "Clip alignment tolerance ±0.07s. " : ""}All examples are synthetic.`
+    ? `${info.title} loaded · ${dirty ? "edited draft" : "supplied illustrative inputs"} · ${s.approval ? "review confirmed" : "review and confirmation still required"}. ${s.sample.kind === "match" ? "Real licensed source; 3D covers only source 1.50–2.70s and contains unconfirmed manual assumptions." : (s.sample.kind === "video" ? "Clip alignment tolerance ±0.07s. " : "") + "Synthetic example."}`
     : "No complete sample selected. Loading a sample never approves it for export.";
 }
-function loadSample(kind) {
+async function loadSample(kind) {
+  sampleLoading = true;
+  lastSampleKind = kind;
+  $("sample-board").disabled = true;
+  $("sample-video").disabled = true;
+  $("sample-match").disabled = true;
+  $("reset-sample").disabled = true;
+  sampleFeedback("loading", `Loading ${SAMPLE_INFO[kind].title}…`);
   const revision = s.revision;
-  mutate(() => {
+  const loaded = mutate(() => {
     s = makeSample(kind);
+    $("scene-view").value = "court";
+    $("motion-actor").value = "M3";
+    $("motion-event").value = "attack";
     s.revision = revision;
     s.sample.baselineRevision = revision + 1;
     time = 0;
@@ -156,6 +228,17 @@ function loadSample(kind) {
     drawing = false;
     activeCalibration = "";
   });
+  if (!loaded) {
+    sampleLoading = false;
+    $("sample-board").disabled = false;
+    $("sample-video").disabled = false;
+    $("sample-match").disabled = false;
+    sampleFeedback(
+      "error",
+      "The sample could not be installed. Your previous scene was kept.",
+    );
+    return;
+  }
   dirty = false;
   if (audioBlob) {
     $("audio").pause();
@@ -170,17 +253,29 @@ function loadSample(kind) {
     URL.revokeObjectURL(videoURL);
     videoURL = null;
   }
-  syncSampleMedia();
+  chooseTab(kind === "match" ? "video" : kind);
+  focusWorkspace(kind === "match" ? "video" : kind);
+  const ready = await syncSampleMedia();
+  sampleLoading = false;
+  $("sample-board").disabled = false;
+  $("sample-video").disabled = false;
+  $("sample-match").disabled = false;
   sampleStatus();
-  chooseTab(kind);
+  if (kind !== "board" && !ready) return;
+  chooseTab(kind === "match" ? "video" : kind);
+  focusWorkspace(kind === "match" ? "video" : kind);
   $("illustrative").checked = false;
   $("play").textContent = "▶ Play";
-  notice(
-    `${SAMPLE_INFO[kind].title} loaded. Synthetic source inputs and scene are editable. Inspect them, then review and confirm before exporting.`,
-  );
+  playing = true;
+  last = performance.now();
+  $("play").textContent = "Ⅱ Pause";
+  const message = `${SAMPLE_INFO[kind].title} loaded and previewing. Editable inputs are below; review and confirm before exporting.`;
+  notice(message);
+  sampleFeedback("success", message);
 }
 $("sample-board").onclick = () => requestReplacement(() => loadSample("board"));
 $("sample-video").onclick = () => requestReplacement(() => loadSample("video"));
+$("sample-match").onclick = () => requestReplacement(() => loadSample("match"));
 $("reset-sample").onclick = () => {
   const kind = s.sample?.kind;
   if (kind) requestReplacement(() => loadSample(kind));
@@ -189,6 +284,10 @@ $("keep-editing").onclick = () => {
   $("replace-dialog").close();
   pendingReplacement = null;
   renderUI();
+  sampleFeedback(
+    "success",
+    "Sample load canceled. Your edited scene was kept.",
+  );
 };
 $("replace-scene").onclick = () => {
   const action = pendingReplacement;
@@ -199,8 +298,19 @@ $("replace-scene").onclick = () => {
 $("replace-dialog").oncancel = () => {
   pendingReplacement = null;
   renderUI();
+  sampleFeedback(
+    "success",
+    "Sample load canceled. Your edited scene was kept.",
+  );
+};
+$("retry-sample").onclick = () => {
+  if (lastSampleKind) requestReplacement(() => loadSample(lastSampleKind));
+};
+$("dismiss-feedback").onclick = () => {
+  $("load-feedback").hidden = true;
 };
 function chooseTab(name) {
+  if (name === "match") name = "video";
   for (const b of document.querySelectorAll("[data-tab]"))
     b.classList.toggle("active", b.dataset.tab === name);
   for (const p of ["board", "video", "review"])
@@ -317,7 +427,505 @@ function fieldEditor(parent, label, f, onValue) {
   }
   parent.append(row);
 }
+function clearMotionPreview() {
+  pendingMotion = null;
+  $("motion-mini").hidden = true;
+  $("confirm-motion").disabled = true;
+  $("apply-motion-preview").disabled = true;
+  $("discard-motion").disabled = true;
+  $("export-video").disabled = !canExport(s) || exporting;
+  $("done").disabled = exporting;
+  $("confirm").disabled = s.reviewedRevision !== s.revision || exporting;
+  $("motion-proposal").textContent =
+    "Preview the current inputs before confirming a motion change.";
+}
+function renderMotion() {
+  const actor = $("motion-actor").value || "M3",
+    event = $("motion-event").value || "attack";
+  options(
+    $("motion-actor"),
+    s.actors.map((a) => [a.id, `${a.id} · ${a.role.value}`]),
+    actor,
+  );
+  options(
+    $("motion-event"),
+    s.contacts.map((c) => [c.id, `${c.id} · ${c.time.value.toFixed(2)}s`]),
+    event,
+  );
+  const selected = $("pose-keys").value;
+  options(
+    $("pose-keys"),
+    [
+      ["", "New keyframe"],
+      ...(s.motion?.keys || []).map((k) => [
+        k.id,
+        `${k.actorId} · ${k.time.value.toFixed(2)}s · ${k.phase.value}`,
+      ]),
+    ],
+    selected,
+  );
+  options(
+    $("pose-phase"),
+    PHASES.map((x) => [x, x]),
+  );
+  options(
+    $("pose-joint"),
+    JOINTS.map((x) => [x, x]),
+    $("pose-joint").value || "rightWrist",
+  );
+  const key = s.motion?.keys.find((k) => k.id === $("pose-keys").value);
+  if (key) {
+    $("motion-actor").value = key.actorId;
+    $("motion-event").value = key.eventId;
+  }
+  fillPose(key ? poseKeyValues(key) : null);
+  $("motion-mini").hidden = true;
+  $("motion-proposal").dataset.state = "";
+  $("motion-proposal").textContent = "No unconfirmed motion preview.";
+  $("confirm-motion").disabled = true;
+  $("discard-motion").disabled = true;
+  $("cue-clarification-label").hidden = true;
+}
+function fillPose(values = null) {
+  const actorId = $("motion-actor").value,
+    eventId = $("motion-event").value,
+    c = s.contacts.find((c) => c.id === eventId);
+  if (!actorId || !c) return;
+  const value = values || keyValues(s, actorId, eventId, c.time.value);
+  value.params = {
+    ...keyValues(s, actorId, eventId, value.time).params,
+    ...value.params,
+  };
+  $("pose-time").value = value.time;
+  $("pose-span").value = value.span;
+  $("pose-phase").value = value.phase;
+  $("pose-plant").value = value.plant;
+  $("pose-params").replaceChildren();
+  for (const [name, bounds] of Object.entries(PARAMS)) {
+    const label = el("label", bounds[2]),
+      input = el("input");
+    input.type = "number";
+    input.id = "pose-" + name;
+    input.min = bounds[0];
+    input.max = bounds[1];
+    input.step =
+      name.includes("Yaw") ||
+      name.includes("Bend") ||
+      name.includes("Lean") ||
+      name.includes("Flex")
+        ? "1"
+        : "0.01";
+    input.value = value.params[name];
+    input.oninput = () => {
+      motionFormDirty = true;
+      if (pendingMotion) clearMotionPreview();
+    };
+    label.append(input);
+    $("pose-params").append(label);
+  }
+  $("rig-params").replaceChildren();
+  const rig = value.rig || rigFor(s, actorId);
+  for (const [name, v] of Object.entries(rig)) {
+    const label = el("label", name.replace(/([A-Z])/g, " $1") + " (m)"),
+      input = el("input");
+    input.type = "number";
+    input.id = "rig-" + name;
+    input.step = "0.01";
+    input.min = String(RIG_LIMITS[name]?.[0] ?? 0.1);
+    input.max = String(RIG_LIMITS[name]?.[1] ?? 2);
+    input.value = v;
+    input.oninput = () => {
+      motionFormDirty = true;
+      if (pendingMotion) clearMotionPreview();
+    };
+    label.append(input);
+    $("rig-params").append(label);
+  }
+  poseFrameTime = value.videoTime ?? null;
+  $("pose-depth").checked = false;
+  const observedJoints = Object.keys(
+    value.imageJoints ||
+      Object.fromEntries(
+        s.observations
+          .filter(
+            (o) =>
+              o.kind === "pose joint" &&
+              o.actorId === actorId &&
+              poseFrameTime !== null &&
+              Math.abs(o.videoTime - poseFrameTime) < 0.07,
+          )
+          .map((o) => [o.jointName, o]),
+      ),
+  );
+  $("pose-source").textContent =
+    poseFrameTime === null
+      ? "No source frame selected. Numeric joint targets are illustrative coach constraints."
+      : `Source frame ${poseFrameTime.toFixed(3)}s · ${observedJoints.length}/${JOINTS.length} observed 2D joints (${observedJoints.join(", ") || "none"}). Unmarked joints and all depth remain illustrative.`;
+  $("remove-pose").disabled = !$("pose-keys").value;
+}
+function poseKeyValues(key) {
+  return {
+    actorId: key.actorId,
+    eventId: key.eventId,
+    time: key.time.value,
+    span: key.span.value,
+    phase: key.phase.value,
+    plant: key.plant.value,
+    params: Object.fromEntries(
+      Object.entries(key.params).map(([k, f]) => [k, f.value]),
+    ),
+    videoTime: key.videoTime?.value,
+    imageJoints: key.imageJoints,
+    imageFit: key.imageFit?.value,
+  };
+}
+function poseForm() {
+  const actorId = $("motion-actor").value,
+    eventId = $("motion-event").value,
+    t = Number($("pose-time").value);
+  const value = {
+    actorId,
+    eventId,
+    time: t,
+    span: Number($("pose-span").value),
+    phase: $("pose-phase").value,
+    plant: $("pose-plant").value,
+    params: Object.fromEntries(
+      Object.keys(PARAMS).map((k) => [k, Number($("pose-" + k).value)]),
+    ),
+    rig: Object.fromEntries(
+      Object.keys(RIG).map((k) => [k, Number($("rig-" + k).value)]),
+    ),
+  };
+  if (poseFrameTime !== null) {
+    value.videoTime = poseFrameTime;
+    const selectedKey = s.motion?.keys.find(
+      (k) =>
+        k.id === $("pose-keys").value &&
+        k.actorId === actorId &&
+        Math.abs(k.time.value - t) < 0.07,
+    );
+    value.imageJoints = {
+      ...(selectedKey?.imageJoints || {}),
+      ...Object.fromEntries(
+        s.observations
+          .filter(
+            (o) =>
+              o.kind === "pose joint" &&
+              o.actorId === actorId &&
+              Math.abs(o.videoTime - poseFrameTime) < 0.07,
+          )
+          .map((o) => [
+            o.jointName,
+            field(
+              { x: o.x, y: o.y },
+              "observed",
+              `Coach marked local source frame ${o.videoTime.toFixed(3)}s; no depth measurement`,
+            ),
+          ]),
+      ),
+    };
+    if (selectedKey?.imageFit) value.imageFit = selectedKey.imageFit.value;
+  }
+  return value;
+}
+function showMotionPlan(plan) {
+  if (s.videoBinding?.state === "unbound") {
+    notice(
+      "Start manual reconstruction explicitly before staging a 3D pose for this clip.",
+    );
+    return;
+  }
+  if (plan.question) {
+    clearMotionPreview();
+    $("motion-proposal").dataset.state = "question";
+    $("motion-proposal").textContent = plan.question;
+    $("cue-clarification-label").hidden = false;
+    $("confirm-motion").disabled = true;
+    $("discard-motion").disabled = true;
+    $("export-video").disabled = !canExport(s);
+    draw();
+    return;
+  }
+  const candidate = previewPlan(s, plan),
+    issues = validate(candidate).filter((i) => i.rank >= 90);
+  pendingMotion = issues.length ? null : plan;
+  time = plan.candidate.time;
+  playing = false;
+  $("play").textContent = "▶ Play";
+  $("scene-view").value = "player";
+  $("motion-proposal").dataset.state = "preview";
+  const rigChanges = Object.entries(plan.candidate.rig || {})
+    .filter(
+      ([k, v]) => Math.abs(v - rigFor(s, plan.candidate.actorId)[k]) > 0.00001,
+    )
+    .map(
+      ([k, v]) => `Rig ${k}: ${rigFor(s, plan.candidate.actorId)[k]} → ${v}`,
+    );
+  const current = keyValues(
+      s,
+      plan.candidate.actorId,
+      plan.candidate.eventId,
+      plan.candidate.time,
+    ),
+    diff = Object.keys(PARAMS)
+      .filter(
+        (k) => Math.abs(plan.candidate.params[k] - current.params[k]) > 0.001,
+      )
+      .map(
+        (k) =>
+          `${k}: ${current.params[k].toFixed(2)} → ${plan.candidate.params[k].toFixed(2)}`,
+      );
+  $("motion-proposal").textContent =
+    `UNCONFIRMED PREVIEW · ${plan.candidate.actorId} / ${plan.candidate.eventId} at ${time.toFixed(2)}s\nPhase ${plan.candidate.phase}; foot plant ${plan.candidate.plant}.\n${[...(plan.changes || []), ...diff, ...rigChanges].filter((v, i, a) => a.indexOf(v) === i).join("\n") || "Save the displayed numeric pose targets."}\n${issues.length ? "PREVIEW REJECTED; current motion unchanged.\n" + issues.map((i) => i.message).join("\n") : "Confirm to apply, invalidate scene approval and retain provenance."}`;
+  $("confirm-motion").disabled =
+    !!issues.length ||
+    (plan.candidate.videoTime !== undefined && !$("pose-depth").checked);
+  $("discard-motion").disabled = false;
+  $("export-video").disabled = true;
+  $("done").disabled = true;
+  $("confirm").disabled = true;
+  $("motion-mini").hidden = false;
+  $("motion-mini-text").textContent = $("motion-proposal").textContent;
+  $("apply-motion-preview").disabled = $("confirm-motion").disabled;
+  $("depth-preview-label").hidden = plan.candidate.videoTime === undefined;
+  $("pose-depth-preview").checked = $("pose-depth").checked;
+  if ($("video").src && Number.isFinite($("video").duration))
+    $("video").currentTime = Math.max(
+      0,
+      Math.min($("video").duration, time + s.clocks.videoOffset.value),
+    );
+  draw();
+  $("scene").scrollIntoView({ block: "center", behavior: "instant" });
+}
+$("motion-actor").onchange = () => {
+  clearMotionPreview();
+  fillPose();
+  draw();
+};
+$("motion-event").onchange = () => {
+  clearMotionPreview();
+  $("pose-keys").value = "";
+  fillPose();
+  draw();
+};
+$("scene-view").onchange = draw;
+$("show-joints").onchange = draw;
+$("pose-phase").addEventListener("change", () => {
+  clearMotionPreview();
+  const phase = $("pose-phase").value,
+    presets = {
+      ready: { handHeight: 1.05, handWidth: 0.55, jumpHeight: 0, kneeBend: 18 },
+      approach: {
+        handHeight: 1.1,
+        handWidth: 0.55,
+        jumpHeight: 0,
+        kneeBend: 40,
+      },
+      dig: {
+        handHeight: 0.9,
+        handWidth: 0.2,
+        jumpHeight: 0,
+        kneeBend: 70,
+        torsoLean: 25,
+      },
+      set: {
+        handHeight: 2.1,
+        handWidth: 0.3,
+        jumpHeight: 0,
+        kneeBend: 40,
+        wristFlex: 20,
+      },
+      attack: {
+        handHeight: 2.9,
+        handWidth: 0.35,
+        jumpHeight: 0.65,
+        kneeBend: 10,
+        torsoLean: -8,
+      },
+      block: {
+        handHeight: 2.6,
+        handWidth: 0.65,
+        jumpHeight: 0.4,
+        kneeBend: 15,
+        wristFlex: 20,
+      },
+      land: { handHeight: 1.2, handWidth: 0.6, jumpHeight: 0, kneeBend: 75 },
+      recovery: {
+        handHeight: 1.1,
+        handWidth: 0.55,
+        jumpHeight: 0,
+        kneeBend: 35,
+      },
+    };
+  for (const [k, v] of Object.entries(presets[phase] || {}))
+    $("pose-" + k).value = v;
+  motionFormDirty = true;
+  $("motion-proposal").textContent =
+    "Phase preset staged in the numeric editor. Preview and confirm to apply it.";
+});
+
+for (const id of [
+  "pose-time",
+  "pose-span",
+  "pose-phase",
+  "pose-plant",
+  "motion-cue",
+])
+  $(id).addEventListener("input", () => {
+    motionFormDirty = true;
+    if (pendingMotion) clearMotionPreview();
+  });
+$("pose-at-event").onclick = () => {
+  clearMotionPreview();
+  poseFrameTime = null;
+  $("pose-keys").value = "";
+  fillPose();
+  time = Number($("pose-time").value);
+  draw();
+};
+$("pose-at-frame").onclick = () => {
+  clearMotionPreview();
+  const v = $("video");
+  if (!v.src || !Number.isFinite(v.duration)) {
+    notice("Load a source video first.");
+    return;
+  }
+  v.pause();
+  playing = false;
+  const t = v.currentTime - s.clocks.videoOffset.value;
+  if (t < 0 || t > s.duration) {
+    notice("Align this source frame to the rally first.");
+    return;
+  }
+  const value = keyValues(
+    s,
+    $("motion-actor").value,
+    $("motion-event").value,
+    t,
+  );
+  value.videoTime = v.currentTime;
+  fillPose(value);
+  time = t;
+  motionFormDirty = true;
+  draw();
+  notice(
+    "Frame time selected. Mark 2D joints and edit the pose; depth remains illustrative.",
+  );
+};
+$("pose-keys").onchange = () => {
+  clearMotionPreview();
+  const key = s.motion?.keys.find((k) => k.id === $("pose-keys").value);
+  if (!key) {
+    fillPose();
+    return;
+  }
+  $("motion-actor").value = key.actorId;
+  $("motion-event").value = key.eventId;
+  fillPose(poseKeyValues(key));
+  time = key.time.value;
+  if ($("video").src)
+    $("video").currentTime =
+      key.videoTime?.value ?? time + s.clocks.videoOffset.value;
+  draw();
+};
+$("fit-observed-arms").onclick = () => {
+  const video = $("video");
+  showMotionPlan(
+    fitObservedArms(
+      s,
+      poseForm(),
+      video.videoWidth / video.videoHeight || 16 / 9,
+      Number($("image-plane-yaw").value),
+    ),
+  );
+};
+$("preview-cue").onclick = () =>
+  showMotionPlan(proposeCue(s, poseForm(), $("motion-cue").value));
+$("preview-pose").onclick = () =>
+  showMotionPlan({
+    candidate: poseForm(),
+    baseRevision: s.revision,
+    text: "Numeric pose and rig editor",
+    changes: [],
+  });
+$("pose-depth").onchange = () => {
+  if (pendingMotion) showMotionPlan(pendingMotion);
+};
+$("apply-motion-preview").onclick = () => $("confirm-motion").click();
+$("cancel-motion-preview").onclick = () => $("discard-motion").click();
+$("pose-depth-preview").onchange = () => {
+  $("pose-depth").checked = $("pose-depth-preview").checked;
+  if (pendingMotion) showMotionPlan(pendingMotion);
+};
+$("discard-motion").onclick = () => {
+  pendingMotion = null;
+  renderUI();
+  draw();
+};
+$("confirm-motion").onclick = () => {
+  const plan = pendingMotion;
+  if (!plan || plan.baseRevision !== s.revision) {
+    notice("The scene changed. Preview the cue again.");
+    return;
+  }
+  if (plan.candidate.videoTime !== undefined && !$("pose-depth").checked) {
+    notice("Confirm illustrative depth for this video-linked pose.");
+    return;
+  }
+  if (validate(previewPlan(s, plan)).some((i) => i.rank >= 90)) {
+    notice("Correct the motion constraints before confirming.");
+    return;
+  }
+  mutate(() => {
+    installKey(
+      s,
+      plan.candidate,
+      `Coach confirmed: ${plan.text || "numeric pose"}; target ${plan.candidate.actorId}/${plan.candidate.eventId}`,
+    );
+    if (plan.contactHeight !== undefined) {
+      const c = s.contacts.find((c) => c.id === plan.candidate.eventId);
+      c.height = field(
+        plan.contactHeight,
+        "coach-provided",
+        `Coach-confirmed cue: ${plan.text}; shared contact anchor`,
+      );
+    }
+  });
+  notice(
+    "Motion change applied. Scene/export approval is invalidated; Undo restores the previous motion.",
+  );
+};
+$("remove-pose").onclick = () => {
+  const id = $("pose-keys").value;
+  if (id)
+    mutate(() => {
+      s.motion.keys = s.motion.keys.filter((k) => k.id !== id);
+    });
+};
+$("cue-clarification").onchange = () => {
+  const v = $("cue-clarification").value;
+  $("motion-proposal").textContent =
+    v === "angle"
+      ? "Edit torso facing, wrist flex or hands forward, then Preview numeric pose. No change is automatic."
+      : v === "timing"
+        ? "Edit the event time or pose time explicitly, then preview. Contact order will be rechecked."
+        : v === "position" || v === "coverage"
+          ? "Choose the relevant player on the board and edit its timed path. Specify a coverage actor and event; no automatic tactical inference is applied."
+          : "Choose timing, position, angle or coverage.";
+};
 function renderUI() {
+  $("video-binding").textContent =
+    s.videoBinding?.state === "unbound"
+      ? "LOCAL CLIP · NO 3D RECONSTRUCTION. The prepared demo has been cleared. Identify players, contacts and frames; start a manual illustration explicitly."
+      : s.videoBinding?.state === "manual"
+        ? "MANUAL RECONSTRUCTION · " +
+          s.videoBinding.source +
+          " Placement and hidden depth require review. No automatic pose extraction."
+        : s.sample?.kind === "video"
+          ? "SYNTHETIC EXAMPLE · prepared clip and supplied 3D scene, not video-extracted motion."
+          : "No local clip is bound to a reconstructed scene.";
+  $("begin-reconstruction").hidden = s.videoBinding?.state !== "unbound";
   if (s.id === "synthetic-pass-set-attack") $("template").value = "rally";
   else if (s.id === "synthetic-slide") $("template").value = "slide";
   const oldActor = $("actor").value,
@@ -343,8 +951,10 @@ function renderUI() {
   $("transcript").value = s.transcript.value;
   $("undo").disabled = !history.length;
   $("redo").disabled = !future.length;
-  $("export-video").disabled = !canExport(s) || exporting;
-  $("confirm").disabled = s.reviewedRevision !== s.revision || exporting;
+  $("export-video").disabled = !canExport(s) || exporting || !!pendingMotion;
+  $("done").disabled = !!pendingMotion || exporting;
+  $("confirm").disabled =
+    s.reviewedRevision !== s.revision || exporting || !!pendingMotion;
   $("export-status").textContent = s.approval
     ? `Revision ${s.revision} approved in ${s.approval.mode} mode. Edits require a new review.`
     : "No approved export yet.";
@@ -353,6 +963,7 @@ function renderUI() {
       ? `Reviewing revision ${s.revision}. Confirm after checking the ledger.`
       : "Finish editing to review this revision.";
   sampleStatus();
+  renderMotion();
   renderActor();
   renderContact();
   for (const [id, obj] of [
@@ -479,8 +1090,19 @@ function renderContact() {
 }
 function draw() {
   time = Math.max(0, Math.min(s.duration, time));
-  drawBoard($("board"), s, time, $("actor").value, draft);
-  drawScene($("scene"), s, time);
+  const display = pendingMotion ? previewPlan(s, pendingMotion) : s;
+  drawBoard($("board"), display, time, $("actor").value, draft);
+  drawScene($("scene"), display, time, {
+    focusActor:
+      $("scene-view").value === "player" ? $("motion-actor").value : null,
+    compareTo: pendingMotion ? s : null,
+    showJoints: $("show-joints").checked,
+  });
+  $("approval-pill").textContent = pendingMotion
+    ? "UNCONFIRMED PREVIEW"
+    : s.approval
+      ? `${s.approval.mode.toUpperCase()} APPROVED`
+      : "DRAFT";
   $("timeline").value = time;
   $("time-label").textContent =
     `${time.toFixed(2)} / ${s.duration.toFixed(2)}s`;
@@ -708,6 +1330,10 @@ $("timeline").oninput = () => {
     $("audio").currentTime = Math.max(0, time + s.clocks.speechOffset.value);
 };
 $("done").onclick = () => {
+  if (pendingMotion) {
+    notice("Confirm or discard the motion preview first.");
+    return;
+  }
   s.reviewedRevision = s.revision;
   renderUI();
   notice(
@@ -715,6 +1341,10 @@ $("done").onclick = () => {
   );
 };
 $("confirm").onclick = () => {
+  if (pendingMotion) {
+    notice("Confirm or discard the motion preview first.");
+    return;
+  }
   try {
     approve(s, $("illustrative").checked ? "illustrative" : "final");
     renderUI();
@@ -779,30 +1409,72 @@ $("save-audio").onclick = () => {
         (audioBlob.type.includes("mp4") ? "m4a" : "webm"),
     );
 };
-$("video-file").onchange = () => {
+let videoSelectionRevision = 0;
+$("video-file").onchange = async () => {
   const f = $("video-file").files[0];
   if (!f) return;
-  if (videoURL) URL.revokeObjectURL(videoURL);
-  videoURL = URL.createObjectURL(f);
-  $("video").src = videoURL;
-  activeCalibration = "";
-  mutate(() => {
-    delete s.sample;
-    for (const c of s.contacts)
-      for (const k of ["actor", "time", "height", "x", "z", "apex"]) {
-        if (k === "actor" && c.action.value === "landing") continue;
-        c[k].status = "unresolved";
-        c[k].source = "Scaffold value, not measured from newly loaded video";
-      }
-    for (const a of s.actors) {
-      a.path.status = "unresolved";
-      a.path.source = "Scaffold path, not video-derived";
+  const selection = ++videoSelectionRevision;
+  let hash;
+  try {
+    if (f.size <= 128 * 1024 * 1024 && crypto.subtle) {
+      notice(
+        "Checking this clip locally so matching saved media can reconnect without losing annotations…",
+      );
+      const bytes = await crypto.subtle.digest(
+        "SHA-256",
+        await f.arrayBuffer(),
+      );
+      hash = [...new Uint8Array(bytes)]
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
     }
+  } catch {
+    notice(
+      "Local content check unavailable; this selection will start an unbound clip.",
+    );
+  }
+  if (selection !== videoSelectionRevision) return;
+  const attach = () => {
+    if (videoURL) URL.revokeObjectURL(videoURL);
+    videoURL = URL.createObjectURL(f);
+    $("video").src = videoURL;
+    playing = false;
+  };
+  if (sameLocalVideo(s, hash)) {
+    attach();
+    $("video").addEventListener(
+      "loadedmetadata",
+      () => {
+        $("video").currentTime = Math.min(
+          $("video").duration,
+          time + s.clocks.videoOffset.value,
+        );
+      },
+      { once: true },
+    );
+    notice(
+      "Matching local clip reconnected by content. Saved annotations and motion were retained; review is still required.",
+    );
+    return;
+  }
+  requestReplacement(() => {
+    attach();
+    activeCalibration = "";
+    time = 0;
+    mutate(() => unbindVideo(s, hash));
+    notice(
+      "New local clip selected. Demo motion, annotations, transcript and calibration cleared; 3D is unbound until you start manual reconstruction.",
+    );
+    drawAnnotations();
   });
-  notice(
-    "Local video loaded. Template tracks are now unresolved scaffolds. Annotate or explicitly approve an illustrative interpretation.",
-  );
-  drawAnnotations();
+};
+$("begin-reconstruction").onclick = () => {
+  if (mutate(() => beginManualReconstruction(s))) {
+    notice(
+      "Manual illustration started. Stationary editor placements are unresolved; map players/contacts and pose observations to this clip.",
+    );
+    draw();
+  }
 };
 for (const [id, sign] of [
   ["frame-back", -1],
@@ -826,10 +1498,33 @@ $("video").ontimeupdate = () => {
     draw();
   }
   $("video-clock").textContent = `Video ${$("video").currentTime.toFixed(3)}s`;
+  if (document.activeElement !== $("video-seek"))
+    $("video-seek").value = $("video").currentTime.toFixed(3);
   drawAnnotations();
+};
+$("seek-source").onclick = () => {
+  const v = $("video"),
+    t = Number($("video-seek").value);
+  if (
+    !v.src ||
+    !Number.isFinite(v.duration) ||
+    !Number.isFinite(t) ||
+    t < 0 ||
+    t > v.duration
+  ) {
+    notice("Choose a source time within the loaded clip.");
+    return;
+  }
+  v.pause();
+  playing = false;
+  v.currentTime = t;
 };
 $("video").onseeked = drawAnnotations;
 $("video").onloadedmetadata = () => {
+  if (s.videoBinding?.state === "unbound") {
+    mutate(() => setUnboundDuration(s, $("video").duration));
+    draw();
+  }
   if (builtInVideo(s))
     $("video").currentTime = Math.max(
       0,
@@ -913,6 +1608,11 @@ function addObservation(x, y) {
       calibrationId: activeCalibration,
       status: "observed",
     };
+    if (kind === "pose joint") {
+      o.actorId = $("motion-actor").value;
+      o.jointName = $("pose-joint").value;
+      o.note = `${o.actorId} ${o.jointName} · observed 2D only; depth unknown · ${o.note}`;
+    }
     s.observations.push(o);
     if (kind === "court landmark" && activeCalibration)
       s.calibrations
@@ -954,12 +1654,12 @@ function renderObservations() {
       ),
     );
   }
-  for (const o of s.observations) {
+  for (const [index, o] of s.observations.entries()) {
     const row = el("div", undefined, "observation");
     row.append(
       el(
         "b",
-        `${o.kind} · video ${o.videoTime.toFixed(3)}s · rally ${o.rallyTime.toFixed(3)}s`,
+        `#${index + 1} ${o.kind} · video ${o.videoTime.toFixed(3)}s · rally ${o.rallyTime.toFixed(3)}s`,
       ),
       el(
         "div",
@@ -999,19 +1699,23 @@ function drawAnnotations() {
     return;
   }
   const b = imageBounds();
-  for (const o of s.observations.filter(
-    (o) => Math.abs(o.videoTime - $("video").currentTime) < 0.15,
-  )) {
+  for (const [index, o] of s.observations.entries()) {
+    if (Math.abs(o.videoTime - $("video").currentTime) >= 0.07) continue;
     c.fillStyle = "#ffe075";
     c.beginPath();
-    c.arc(b.x + o.x * b.w, b.y + o.y * b.h, 6, 0, 7);
+    c.arc(b.x + o.x * b.w, b.y + o.y * b.h, 7, 0, 7);
     c.fill();
-    c.font = "13px system-ui";
-    c.textAlign = "left";
-    c.fillText(o.kind + ": " + o.note, b.x + o.x * b.w + 10, b.y + o.y * b.h);
+    c.fillStyle = "#172b3d";
+    c.font = "bold 10px system-ui";
+    c.textAlign = "center";
+    c.fillText(String(index + 1), b.x + o.x * b.w, b.y + o.y * b.h + 3);
   }
 }
 $("export-video").onclick = async () => {
+  if (pendingMotion) {
+    notice("Confirm or discard the motion preview before exporting.");
+    return;
+  }
   if (!canExport(s)) {
     notice("Review and confirm this revision before exporting.");
     return;
@@ -1031,8 +1735,10 @@ $("export-video").onclick = async () => {
   exportCancelled = false;
   playing = false;
   renderUI();
+  const oldTime = time;
+  time = 0;
+  draw();
   const revision = s.revision,
-    oldTime = time,
     stream = $("scene").captureStream(30),
     chunks = [],
     r = new MediaRecorder(stream, {

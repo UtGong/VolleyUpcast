@@ -4,8 +4,26 @@
 /** @typedef {{t:number,x:number,z:number}} Point */
 /** @typedef {{id:string,role:Field<string>,rotation:Field<number>,path:Field<Point[]>}} Actor */
 /** @typedef {{id:string,after:string[],actor:Field<string>,action:Field<string>,time:Field<number>,height:Field<number>,x:Field<number>,z:Field<number>,apex:Field<number>}} Contact */
-/** @typedef {{id:string,kind:string,videoTime:number,rallyTime:number,x:number,y:number,note:string,calibrationId:string,status:Provenance}} Observation */
-/** @typedef {{schemaVersion:1,id:string,title:string,revision:number,sample?:{kind:"board"|"video",id:string,baselineRevision:number,source:Field<string>,clip?:Field<string>,timingTolerance?:Field<number>,clipDuration?:Field<number>},approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
+/** @typedef {{id:string,kind:string,videoTime:number,rallyTime:number,x:number,y:number,note:string,calibrationId:string,status:Provenance,actorId?:string,jointName?:string}} Observation */
+/** @typedef {{id:string,actorId:string,eventId:string,time:Field<number>,span:Field<number>,phase:Field<string>,plant:Field<string>,params:Record<string,Field<number>>,depth:Field<string>,videoTime?:Field<number>,imageJoints?:Record<string,Field<{x:number,y:number}>>,imageFit?:Field<string>}} MotionKey */
+/** @typedef {{schemaVersion:1,id:string,title:string,revision:number,videoBinding?:{state:"unbound"|"manual",source:string,sha256?:string},motion?:{version:1,rigs:Record<string,Record<string,Field<number>>>,keys:MotionKey[]},sample?:{kind:"board"|"video"|"match",id:string,baselineRevision:number,source:Field<string>,clip?:Field<string>,timingTolerance?:Field<number>,clipDuration?:Field<number>},approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
+export const RIG_LIMITS = /** @type {Record<string,number[]>} */ ({
+  shoulderHeight: [1, 1.95],
+  shoulderWidth: [0.25, 0.75],
+  upperArm: [0.2, 0.65],
+  forearm: [0.2, 0.65],
+  thigh: [0.3, 0.7],
+  shin: [0.3, 0.7],
+  pelvisWidth: [0.2, 0.6],
+  torsoDepth: [0.12, 0.45],
+  headWidth: [0.12, 0.28],
+  headHeight: [0.16, 0.34],
+  headDepth: [0.12, 0.3],
+  armRadius: [0.025, 0.11],
+  legRadius: [0.045, 0.15],
+  palmWidth: [0.05, 0.13],
+  footWidth: [0.06, 0.16],
+});
 export const STATUSES = /** @type {Provenance[]} */ ([
   "observed",
   "coach-provided",
@@ -224,6 +242,21 @@ export function validate(s) {
     const actor = s.actors.find((a) => a.id === c.actor.value);
     if (actor) {
       const p = actorAt(actor, c.time.value);
+      const rig = s.motion?.rigs[actor.id],
+        arm = (rig?.upperArm?.value ?? 0.42) + (rig?.forearm?.value ?? 0.42),
+        shoulder = rig?.shoulderHeight?.value ?? 1.48;
+      if (Math.hypot(p.x - c.x.value, p.z - c.z.value) > arm + 0.1)
+        add(
+          c.id,
+          "Shared contact is outside supported arm reach; correct actor path or contact position",
+          95,
+        );
+      if (c.height.value > shoulder + 1 + arm)
+        add(
+          c.id,
+          "Contact is above maximum supported rig/jump reach; correct height or rig",
+          95,
+        );
       if (Math.hypot(p.x - c.x.value, p.z - c.z.value) > 1.8)
         add(
           c.id,
@@ -299,7 +332,11 @@ export function validate(s) {
   if (s.contacts.length < 2)
     add("contacts", "At least two contact anchors needed", 100);
   for (const key of ["playerId", "setterId"])
-    if (s.tactic[key] && !ids.has(s.tactic[key].value))
+    if (
+      s.tactic[key] &&
+      s.tactic[key].status !== "flexible-not-applicable" &&
+      !ids.has(s.tactic[key].value)
+    )
       add(key, "Tactic references an unknown actor", 95);
   if (s.clocks.animationRate.value <= 0 || s.clocks.fps.value <= 0)
     add("clocks", "Clock rate and FPS must be positive", 100);
@@ -312,6 +349,244 @@ export function validate(s) {
         (c.validUntil !== null && o.videoTime >= c.validUntil)
       )
         add(o.id, "Observation uses calibration invalid after camera cut", 90);
+    }
+  }
+  if (s.videoBinding) {
+    if (s.videoBinding.sha256 && !/^[a-f0-9]{64}$/.test(s.videoBinding.sha256))
+      add("videoBinding", "Invalid local clip content identity", 100);
+    if (
+      !["unbound", "manual"].includes(s.videoBinding.state) ||
+      typeof s.videoBinding.source !== "string"
+    )
+      add("videoBinding", "Unknown video reconstruction binding", 100);
+    if (s.videoBinding.state === "unbound")
+      add(
+        "videoBinding",
+        "Local video is unbound. Start manual reconstruction and map actual observations before creating a 3D illustration.",
+        100,
+      );
+  }
+  if (s.motion) {
+    const limits = {
+      handHeight: [0.35, 3.5],
+      handWidth: [0.08, 1.4],
+      handForward: [-0.6, 1],
+      jumpHeight: [0, 1],
+      kneeBend: [5, 115],
+      torsoYaw: [-180, 180],
+      torsoLean: [-35, 45],
+      wristFlex: [-60, 60],
+      stanceWidth: [0.2, 1],
+      elbowOut: [0, 1],
+      footYaw: [-60, 60],
+    };
+    if (
+      s.motion.version !== 1 ||
+      !Array.isArray(s.motion.keys) ||
+      !s.motion.rigs
+    )
+      add("motion", "Unsupported motion schema", 100);
+    const swingLimits = {
+      compression: [0, 0.18],
+      torsoTwist: [-70, 70],
+      swingBlend: [0, 1],
+      rightSwing: [-160, 180],
+      rightAbduction: [-100, 100],
+      rightElbowBend: [5, 155],
+      rightElbowPlane: [-180, 180],
+      rightForearmTwist: [-180, 180],
+      leftSwing: [-160, 180],
+      leftAbduction: [-100, 100],
+      leftElbowBend: [5, 155],
+      leftElbowPlane: [-180, 180],
+      leftForearmTwist: [-180, 180],
+    };
+    const rigDefault = {
+      shoulderHeight: 1.48,
+      shoulderWidth: 0.42,
+      upperArm: 0.42,
+      forearm: 0.42,
+      thigh: 0.46,
+      shin: 0.46,
+      pelvisWidth: 0.28,
+    };
+    for (const [id, rig] of Object.entries(s.motion.rigs)) {
+      if (!ids.has(id)) add(id, "Rig references missing player", 100);
+      for (const [name, f] of Object.entries(rig))
+        if (
+          !Number.isFinite(f.value) ||
+          f.value <= 0 ||
+          f.value > 2 ||
+          (RIG_LIMITS[name] &&
+            (f.value < RIG_LIMITS[name][0] || f.value > RIG_LIMITS[name][1]))
+        )
+          add(id + name, "Invalid rig dimension", 100);
+    }
+    const seen = new Set();
+    for (const k of s.motion.keys) {
+      if (seen.has(k.id)) add(k.id, "Duplicate pose keyframe ID", 100);
+      seen.add(k.id);
+      if (!ids.has(k.actorId) || !cids.has(k.eventId))
+        add(k.id, "Pose needs an existing player and event", 100);
+      if (
+        !Number.isFinite(k.time.value) ||
+        k.time.value < 0 ||
+        k.time.value > s.duration ||
+        !Number.isFinite(k.span.value) ||
+        k.span.value < 0.1 ||
+        k.span.value > 2
+      )
+        add(k.id, "Pose keyframe time/influence window invalid", 100);
+      if (
+        ![
+          "ready",
+          "approach",
+          "dig",
+          "set",
+          "attack",
+          "block",
+          "land",
+          "recovery",
+        ].includes(k.phase.value) ||
+        !["auto", "both", "left", "right", "airborne"].includes(k.plant.value)
+      )
+        add(k.id, "Unknown phase or foot plant mode", 100);
+      for (const [name, bounds] of Object.entries(limits)) {
+        const f = k.params[name];
+        if (
+          !f ||
+          !Number.isFinite(f.value) ||
+          f.value < bounds[0] ||
+          f.value > bounds[1]
+        )
+          add(
+            k.id + name,
+            "Motion parameter outside supported template bounds",
+            95,
+          );
+      }
+      for (const [name, bounds] of Object.entries(swingLimits)) {
+        const f = k.params[name];
+        if (
+          f &&
+          (!Number.isFinite(f.value) ||
+            f.value < bounds[0] ||
+            f.value > bounds[1])
+        )
+          add(
+            k.id + name,
+            "Swing/compression parameter outside supported bounds",
+            95,
+          );
+      }
+      const values = Object.fromEntries(
+        Object.entries(k.params).map(([name, f]) => [name, f.value]),
+      );
+      const rig = Object.fromEntries(
+        Object.entries(rigDefault).map(([name, value]) => [
+          name,
+          s.motion?.rigs[k.actorId]?.[name]?.value ?? value,
+        ]),
+      );
+      const drop =
+        (rig.thigh + rig.shin) *
+        (1 - Math.cos((values.kneeBend * Math.PI) / 360));
+      const shoulder =
+        rig.shoulderHeight -
+        drop +
+        values.jumpHeight -
+        (values.compression || 0);
+      const reach = Math.hypot(
+        values.handHeight - shoulder,
+        (values.handWidth - rig.shoulderWidth) / 2,
+        values.handForward,
+      );
+      if (
+        (values.swingBlend || 0) < 0.99 &&
+        reach > rig.upperArm + rig.forearm + 0.03
+      )
+        add(
+          k.id,
+          "Impossible arm reach: lower hands, adjust jump/knees or correct rig dimensions",
+          95,
+        );
+      const contact = s.contacts.find((c) => c.id === k.eventId);
+      const actor = s.actors.find((a) => a.id === k.actorId);
+      if (
+        contact?.actor.value === k.actorId &&
+        Math.abs(k.time.value - contact.time.value) < 0.03 &&
+        ["dig", "set", "attack"].includes(k.phase.value) &&
+        Math.abs(values.handHeight - contact.height.value) > 0.06
+      )
+        add(
+          k.id,
+          "Pose hand height contradicts shared ball contact; adjust both explicitly",
+          95,
+        );
+      if (k.plant.value !== "auto" && k.plant.value !== "airborne") {
+        if (values.jumpHeight > 0.12)
+          add(
+            k.id,
+            "Planted foot conflicts with airborne jump; use auto or airborne",
+            95,
+          );
+        if (actor) {
+          const center = actorAt(actor, k.time.value);
+          for (const t of [
+            Math.max(0, k.time.value - k.span.value * 0.5),
+            Math.min(s.duration, k.time.value + k.span.value * 0.5),
+          ]) {
+            const p = actorAt(actor, t);
+            if (Math.hypot(p.x - center.x, p.z - center.z) > 0.18)
+              add(
+                k.id,
+                "Foot sliding constraint: planted pose moves along the actor path; add a step or change plant mode",
+                95,
+              );
+          }
+        }
+      }
+      if (
+        k.videoTime &&
+        Math.abs(
+          k.videoTime.value - (k.time.value + s.clocks.videoOffset.value),
+        ) > 0.07
+      )
+        add(k.id, "Pose frame clock contradicts video/rally offset", 95);
+      for (const point of Object.values(k.imageJoints || {}))
+        if (
+          !Number.isFinite(point.value.x) ||
+          !Number.isFinite(point.value.y) ||
+          point.value.x < 0 ||
+          point.value.x > 1 ||
+          point.value.y < 0 ||
+          point.value.y > 1
+        )
+          add(
+            k.id,
+            "Image joint must be a normalized observed point, not invented depth",
+            95,
+          );
+    }
+    for (const id of ids) {
+      const keys = s.motion.keys
+        .filter((k) => k.actorId === id)
+        .sort((a, b) => a.time.value - b.time.value);
+      for (let i = 1; i < keys.length; i++) {
+        const a = keys[i - 1],
+          b = keys[i],
+          dt = b.time.value - a.time.value;
+        const turn = Math.abs(
+          ((b.params.torsoYaw.value - a.params.torsoYaw.value + 540) % 360) -
+            180,
+        );
+        if (dt <= 0 || turn / (dt || 0.001) > 240)
+          add(
+            b.id,
+            "Pose turn is too abrupt for this template; add time or intermediate steps",
+            95,
+          );
+      }
     }
   }
   return issues.sort((a, b) => b.rank - a.rank);
@@ -412,7 +687,7 @@ export function parse(text) {
     throw Error("Invalid duration or revision");
   if (
     s.sample &&
-    (!["board", "video"].includes(s.sample.kind) ||
+    (!["board", "video", "match"].includes(s.sample.kind) ||
       typeof s.sample.id !== "string")
   )
     throw Error("Unsupported sample metadata");
@@ -420,6 +695,11 @@ export function parse(text) {
     for (const key of ["time", "height", "x", "z", "apex"])
       if (!Number.isFinite(c[key]?.value))
         throw Error("Contact numeric fields must be finite");
+  if (
+    s.motion &&
+    (s.motion.version !== 1 || !s.motion.rigs || !Array.isArray(s.motion.keys))
+  )
+    throw Error("Unsupported motion schema");
   validate(s);
   s.approval = null;
   s.reviewedRevision = null;

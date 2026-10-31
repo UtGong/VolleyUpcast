@@ -113,6 +113,27 @@
           No complete sample selected. Loading a sample never approves it for
           export.
         </p>
+        <article class="sample-card">
+          <p class="eyebrow">REAL MATCH REFERENCE · CC BY4.0</p>
+          <h3>Real footage + a manually grounded net exchange</h3>
+          <p>
+            UVG-VCM — Volleyball Game, Ultra Video Group, Tampere University.
+            The source is 10 seconds; the 3D illustration covers only source
+            1.50–2.70s and two net players. Marked arm directions guide its
+            keyframes. Contact windows are approximate; court placement and
+            hidden depth require review. This is not automatic reconstruction.
+          </p>
+          <button id="sample-match" class="primary">
+            Load real match example
+          </button>
+          <div class="sample-links">
+            <a href="./examples/uvg-match-notes.txt"
+              >Source, license & annotation notes</a
+            ><a href="./examples/uvg-volleyball-match.mp4" download
+              >Licensed real clip</a
+            ><a href="./examples/uvg-match.json" download>Manual scene JSON</a>
+          </div>
+        </article>
       </section>
       <nav class="tabs" aria-label="Workflow">
         <button data-tab="board" class="active">01 · Tactics board</button
@@ -192,6 +213,10 @@
                   hidden
               /></label>
             </div>
+            <div id="video-binding" class="motion-proposal" role="status"></div>
+            <button id="begin-reconstruction" hidden>
+              Start manual reconstruction with unresolved placements
+            </button>
             <div class="video-stage">
               <video id="video" controls playsinline></video
               ><canvas
@@ -210,13 +235,28 @@
             </div>
             <div class="toolbar">
               <label
+                >Source time (s)<input
+                  id="video-seek"
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value="0" /></label
+              ><button id="seek-source">Seek source time</button>
+            </div>
+            <div class="toolbar">
+              <label
                 >Annotation<select id="observation-kind">
                   <option>court landmark</option>
                   <option>player</option>
                   <option>ball</option>
                   <option>contact</option>
                   <option>transcript event</option>
+                  <option>pose joint</option>
                 </select></label
+              ><label
+                >Image joint (pose joint mode)<select
+                  id="pose-joint"
+                ></select></label
               ><label
                 >Note / actor ID<input
                   id="observation-note"
@@ -337,6 +377,15 @@
               height="620"
               aria-label="3D projected volleyball court with template human motion"
             ></canvas>
+            <div id="motion-mini" class="motion-proposal" hidden>
+              <p id="motion-mini-text"></p>
+              <label id="depth-preview-label" class="check" hidden
+                ><input id="pose-depth-preview" type="checkbox" />I accept
+                illustrative joint depth for this source frame.</label
+              ><button id="apply-motion-preview" disabled>
+                Apply this motion</button
+              ><button id="cancel-motion-preview">Discard this preview</button>
+            </div>
             <div class="toolbar">
               <button id="play" class="primary">▶ Play</button
               ><button id="reset">↺</button
@@ -356,6 +405,135 @@
               Articulated template motion · illustrative arcs · 2.43m net · no
               biomechanical accuracy claim
             </p>
+          </section>
+          <section class="inspector motion-panel">
+            <h2>Body motion & coach cues</h2>
+            <p class="hint">
+              Volume mannequin with coarse palms/thumbs and shoes; individual
+              finger articulation is not modeled. Coach edits and observed image
+              joints do not establish hidden 3D depth.
+            </p>
+            <div class="toolbar">
+              <label>Motion player<select id="motion-actor"></select></label
+              ><label>Motion event<select id="motion-event"></select></label
+              ><label
+                >3D view<select id="scene-view">
+                  <option value="court">Full court</option>
+                  <option value="player">Focus motion player</option>
+                </select></label
+              >
+            </div>
+            <label class="check"
+              ><input id="show-joints" type="checkbox" />Show joint markers on
+              the mannequin</label
+            >
+            <label
+              >Saved pose keyframe<select id="pose-keys">
+                <option value="">New keyframe</option>
+              </select></label
+            >
+            <div class="toolbar">
+              <label>Phase<select id="pose-phase"></select></label
+              ><label
+                >Foot plant<select id="pose-plant">
+                  <option>auto</option>
+                  <option>both</option>
+                  <option>left</option>
+                  <option>right</option>
+                  <option>airborne</option>
+                </select></label
+              ><label
+                >Rally pose time (s)<input
+                  id="pose-time"
+                  type="number"
+                  min="0"
+                  max="120"
+                  step="0.01" /></label
+              ><label
+                >Influence ± seconds<input
+                  id="pose-span"
+                  type="number"
+                  min="0.1"
+                  max="2"
+                  step="0.05"
+                  value="0.6"
+              /></label>
+            </div>
+            <div class="toolbar">
+              <button id="pose-at-event">Use event time</button
+              ><button id="pose-at-frame">Capture current video frame</button>
+            </div>
+            <p id="pose-source" class="hint">
+              No observed source frame selected. Numeric pose targets are
+              coach-supplied template constraints.
+            </p>
+            <details>
+              <summary>Use marked image joints to guide the arm swing</summary>
+              <p class="hint">
+                Mark shoulder, elbow and wrist for one arm on the same
+                player/frame, then capture that frame. This fits segment
+                directions in an assumed vertical body plane. Foreshortening and
+                depth remain unknown; review the pose and correct it. Shared
+                ball contact takes precedence at contact time.
+              </p>
+              <label
+                >Assumed body-plane facing (degrees)<input
+                  id="image-plane-yaw"
+                  type="number"
+                  min="-180"
+                  max="180"
+                  value="0"
+                  step="1"
+              /></label>
+              <button id="fit-observed-arms">
+                Preview arm fit from marked joints
+              </button>
+            </details>
+            <div id="pose-params" class="pose-grid"></div>
+            <details>
+              <summary>
+                Player rig dimensions (metres) · template unless corrected
+              </summary>
+              <div id="rig-params" class="pose-grid"></div>
+            </details>
+            <label class="check"
+              ><input id="pose-depth" type="checkbox" />For a video-linked pose,
+              I accept illustrative joint depth; only the marked 2D points and
+              frame time are observed.</label
+            >
+            <label
+              >Coach cue for this player/event<input
+                id="motion-cue"
+                placeholder="Put your hands higher · block wider · turn left"
+            /></label>
+            <div class="toolbar">
+              <button id="preview-cue" class="primary">Preview coach cue</button
+              ><button id="preview-pose">Preview numeric pose</button>
+            </div>
+            <label id="cue-clarification-label" hidden
+              >Clarify the intent<select id="cue-clarification">
+                <option value="">Choose a specific aspect</option>
+                <option value="timing">Timing</option>
+                <option value="position">Court position</option>
+                <option value="angle">Torso/hand angle</option>
+                <option value="coverage">Coverage</option>
+              </select></label
+            >
+            <div
+              id="motion-proposal"
+              class="motion-proposal"
+              role="status"
+              aria-live="polite"
+            >
+              No unconfirmed motion preview.
+            </div>
+            <div class="toolbar">
+              <button id="confirm-motion" disabled>Confirm motion change</button
+              ><button id="discard-motion" disabled>Discard preview</button
+              ><button id="remove-pose" disabled>
+                Remove selected keyframe
+              </button>
+            </div>
           </section>
           <section class="inspector">
             <div class="panel-top">
@@ -401,6 +579,19 @@
         >
       </footer>
     </main>
+    <div
+      id="load-feedback"
+      class="load-feedback"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      <span id="load-feedback-text"></span
+      ><button id="retry-sample" hidden>Retry sample</button
+      ><button id="dismiss-feedback" aria-label="Dismiss sample status">
+        ×
+      </button>
+    </div>
     <dialog id="replace-dialog" aria-labelledby="replace-title">
       <h2 id="replace-title">Replace the current edited scene?</h2>
       <p>

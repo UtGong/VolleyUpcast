@@ -1,0 +1,16 @@
+UVG-VCM — Volleyball Game, Ultra Video Group, Tampere University, CC BY4.0.
+Official source: https://tie-ultravideo.rd.tuni.fi/UVG-VCM/index.html
+Original MP4: https://tie-ultravideo.rd.tuni.fi/UVG-VCM/VolleyballGame/VolleyballGame.mp4
+License: https://creativecommons.org/licenses/by/4.0/
+Citation: T. Partanen, M. Anttila, R. Kortelahti, G. Gautier, A. Mercat, and J. Vanne, “UVG-VCM: Benchmarking dataset for machine-oriented visual data compression,” Proc. Int. Conf. Qual. Multimedia Exper., Cardiff, United Kingdom, Jun.—Jul. 2026.
+Changes: original 3840x2160 H.264 video resized to 1280x720 and H.264 recompressed using FFmpeg; 60fps, all 600 frames, 10-second duration retained, no audio. No faces or identities analyzed.
+The app only illustrates source 1.50–2.70s, using rally time = source time - 1.50. Two anonymous players are modeled. Other players and subsequent rally events are not reconstructed.
+Visible source frames inspected manually; approximate joint points have ±15px marking tolerance at 1920x1080 inspection scale. Vertical-plane arm fitting is an explicit, unmeasured depth assumption. No automatic tracking or 3D estimator ran.
+Approximate attack overlap source 2.0167s ±0.05s; possible blocker overlap 2.0833s ±0.05s. Exact impact/deflection is uncertain. Court position, height, body proportions and jump lift remain unconfirmed illustrative values.
+
+AUTHORED ANNOTATOR NOTES — not a real coach recording. Real UVG-VCM source has no audio.
+[source 1.50–2.70s] Only two anonymous net players are illustrated; other players and the remainder of the 10-second rally are not reconstructed.
+[source 1.80s] Near right-side jumper has a cocked arm; approximate visible shoulder/elbow/wrist points guide a conditional vertical-plane pose.
+[source about 2.02s ±0.05s] Overhead attack hand/ball overlap.
+[source about 2.08s ±0.05s] Possible opposite blocker contact; overlap/occlusion requires coach confirmation.
+[source 2.17s] Follow-through arm points guide the next key. Court positions, heights, body depth and jump lift are illustrative assumptions. Correct them and review before exporting.

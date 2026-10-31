@@ -1,9 +1,16 @@
+import { makeMatchSample, MATCH_CLIP, MATCH_ID } from "./match-sample.js";
 import { demo, field } from "./model.js";
 import { projectPoint } from "./render.js";
 
 export const SAMPLE_VIDEO_DURATION = 4.97;
 export const SAMPLE_VIDEO = "./examples/sample-video.webm";
 export const SAMPLE_INFO = {
+  match: {
+    id: MATCH_ID,
+    title: "Real match · manual excerpt",
+    detail:
+      "UVG-VCM licensed real clip; manually marked 1.50–2.70s net exchange. Hidden depth remains uncertain.",
+  },
   board: {
     id: "board-slide-v1",
     title: "Sample 1 · Board → 3D",
@@ -18,6 +25,7 @@ export const SAMPLE_INFO = {
   },
 };
 export function makeSample(kind) {
+  if (kind === "match") return makeMatchSample();
   if (!Object.hasOwn(SAMPLE_INFO, kind)) throw Error("Unknown sample");
   const s = demo(kind === "board" ? "slide" : "rally");
   const info = SAMPLE_INFO[kind];
@@ -143,6 +151,7 @@ export function makeSample(kind) {
   return s;
 }
 export function builtInVideo(s) {
+  if (s.sample?.kind === "match" && s.sample.id === MATCH_ID) return MATCH_CLIP;
   return s.sample?.kind === "video" && s.sample.id === SAMPLE_INFO.video.id
     ? SAMPLE_VIDEO
     : null;

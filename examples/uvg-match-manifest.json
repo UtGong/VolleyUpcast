@@ -1,0 +1,30 @@
+{
+  "id": "uvg-match-manual-v1",
+  "source": "https://tie-ultravideo.rd.tuni.fi/UVG-VCM/index.html",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "UVG-VCM — Volleyball Game, Ultra Video Group, Tampere University, CC BY4.0.",
+  "originalSha256": "a1c32537751ec92d7707d22e17a1480764c34406ae812d00a335e17ebc1356bd",
+  "sha256": "52db270f5ff1c3c22453a63d2e63d01e7fb0a76af9a513cd17d57a046f9b2bec",
+  "bytes": 1830093,
+  "width": 1280,
+  "height": 720,
+  "fps": 60,
+  "frames": 600,
+  "duration": 10,
+  "audio": false,
+  "changes": "Resized from3840x2160 and H264recompressed; allframes retained",
+  "illustratedSourceWindow": [1.5, 2.7],
+  "manualContactWindows": [
+    {
+      "action": "attack",
+      "sourceSeconds": 2.0166666666666666,
+      "tolerance": 0.05
+    },
+    {
+      "action": "possible-block",
+      "sourceSeconds": 2.0833333333333335,
+      "tolerance": 0.05
+    }
+  ],
+  "note": "No automatic tracking or measured depth. Only two anonymous visual tracks in a partial manual illustration."
+}
