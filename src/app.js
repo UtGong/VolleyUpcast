@@ -1549,6 +1549,7 @@ $("seek-source").onclick = () => {
   }
   v.pause();
   playing = false;
+  $("play").textContent = "▶ Play";
   v.currentTime = t;
 };
 $("video").onseeked = () => {
@@ -1887,6 +1888,7 @@ focusUI = setupFocus({
   setTime: (t) => {
     time = t;
     playing = false;
+    $("play").textContent = "▶ Play";
   },
 });
 syncSampleMedia();
