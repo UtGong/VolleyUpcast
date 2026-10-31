@@ -1,6 +1,6 @@
 # Architecture
 
-The app is browser-local. `src/model.js` is the typed, deterministic domain layer; `src/render.js` contains court and 3D perspective rendering; `src/app.js` owns UI state, review, file/recording lifecycle, and browser persistence. `server.mjs` serves only static files on loopback and has no upload endpoint. The CSP disallows external connections and remote scripts.
+The app runs entirely in the browser. GitHub Pages serves only the static build over HTTPS; media processing remains browser-local. `src/model.js` is the typed, deterministic domain layer; `src/render.js` contains court and 3D perspective rendering; `src/app.js` owns UI state, review, file/recording lifecycle, and browser persistence. `server.mjs` serves only static files on loopback and has no upload endpoint. The CSP disallows external connections and remote scripts.
 
 ## Scenario v1
 
@@ -26,4 +26,4 @@ Content mutations snapshot undo history, increment revision, clear review and ex
 
 ## Boundaries
 
-Schema parsing rejects unknown versions and malformed essential structures. Type checking currently covers the domain model, not the entire UI. localStorage is same-origin browser storage, not encrypted vault storage. Keep sensitive notes out of demonstrations. The static server uses a root containment check. Production authentication, multitenancy, uploaded-media management, remote collaboration, public deployment and paid inference are outside this prototype.
+Schema parsing rejects unknown versions and malformed essential structures. Type checking currently covers the domain model, not the entire UI. localStorage is same-origin browser storage, not encrypted vault storage. Keep sensitive notes out of demonstrations. The static server uses a root containment check. Production authentication, multitenancy, uploaded-media management, remote collaboration, paid inference are outside this prototype. The public GitHub Pages deployment adds no server-side data processing or media-upload endpoint.

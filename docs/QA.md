@@ -28,3 +28,14 @@ Additional responsive, persistence, interruption and final-source checks are app
 - Browser console error log was empty in the inspected run. Full UI static typing, cross-browser media behavior, real microphone permission/capture, and a full automated browser regression suite remain unverified.
 
 - Final import hardening rejects non-finite contact numeric types and unsupported duration/revision before UI rendering; corresponding regression test passed.
+
+## Public HTTPS deployment
+
+2026-10-31: GitHub Pages at https://utgong.github.io/VolleyUpcast/ returned HTTP 200 for the entry page and JavaScript asset. Public deployment and CI passed for the deployment change. The build contains only `index.html`, `src/`, synthetic `examples/` and `.nojekyll`; local screenshots, WebM recordings and notes are excluded. Entry asset URLs and the home link are relative to the project subpath, covered by regression checks. A restrictive CSP is embedded in HTML so it survives static hosting.
+
+- Deployed desktop browser rendered the board and 3D scene; attack contact shortcut synchronized the shared playhead at 3.00 seconds.
+- Deployed mobile viewport 390×844 had 390px body width and no horizontal overflow.
+- Deployed browser console had no error entries during the inspected run.
+- Deployed illustrative export generated a real 339 KB silent WebM through the actual download UI.
+- Microphone recording remains an explicit button action using `getUserMedia` with browser permission on HTTPS. No automatic recording, remote speech API or microphone permission grant was exercised during publishing QA. Actual device capture remains a tester permission step; no private audio was recorded.
+- Synthetic screenshot evidence is retained in ignored `qa-local/public-desktop.jpg` and `qa-local/public-mobile.jpg` in the working task workspace.

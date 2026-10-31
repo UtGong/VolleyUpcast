@@ -19,6 +19,8 @@ npm run check
 
 ## Public testing
 
+**Live prototype: https://utgong.github.io/VolleyUpcast/**
+
 The GitHub Pages workflow builds and checks `main`, then deploys only `dist/`. Assets and the home link use relative URLs so the same build works under `/VolleyUpcast/` and on loopback. Browser media, recordings and local draft storage remain on the testing device. Microphone recording requires HTTPS (or localhost), browser support, and a deliberate permission grant. WebM export remains browser-dependent. No service worker or server-side media storage is configured.
 
 ## Try the two workflows
