@@ -31,7 +31,7 @@ Additional responsive, persistence, interruption and final-source checks are app
 
 ## Public HTTPS deployment
 
-2026-10-31: GitHub Pages at https://utgong.github.io/VolleyUpcast/ returned HTTP 200 for the entry page and JavaScript asset. Public deployment and CI passed for the deployment change. The build contains only `index.html`, `src/`, synthetic `examples/` and `.nojekyll`; local screenshots, WebM recordings and notes are excluded. Entry asset URLs and the home link are relative to the project subpath, covered by regression checks. A restrictive CSP is embedded in HTML so it survives static hosting.
+2026-10-31: GitHub Pages at https://utgong.github.io/VolleyUpcast/ returned HTTP 200 for the entry page and JavaScript asset. Public deployment and CI passed for the deployment change. The build contains only `index.html`, `src/`, synthetic `examples/` and `.nojekyll`; local screenshots, personal recordings and notes are excluded. The later two-sample update explicitly includes one generated synthetic WebM. Entry asset URLs and the home link are relative to the project subpath, covered by regression checks. A restrictive CSP is embedded in HTML so it survives static hosting.
 
 - Deployed desktop browser rendered the board and 3D scene; attack contact shortcut synchronized the shared playhead at 3.00 seconds.
 - Deployed mobile viewport 390×844 had 390px body width and no horizontal overflow.
@@ -39,3 +39,14 @@ Additional responsive, persistence, interruption and final-source checks are app
 - Deployed illustrative export generated a real 339 KB silent WebM through the actual download UI.
 - Microphone recording remains an explicit button action using `getUserMedia` with browser permission on HTTPS. No automatic recording, remote speech API or microphone permission grant was exercised during publishing QA. Actual device capture remains a tester permission step; no private audio was recorded.
 - Synthetic screenshot evidence is retained in ignored `qa-local/public-desktop.jpg` and `qa-local/public-mobile.jpg` in the working task workspace.
+
+## Two-sample update
+
+- 22 automated checks pass, including both complete sample scene fixtures, transcript/contact agreement, normalized generator projection, clip hash, review invalidation and safe built-in media resolution.
+- The synthetic reference contains 149 VP9 frames at 900×620 and is 4.97 seconds long. Stream-copy remux adds the duration/seek index; no footage was inferred or sourced from a coach.
+- Browser decoded the indexed sample and reported seekable interval [0, 4.97]. Attack shortcut moved source video and scene to 3.00 seconds.
+- Edited board transcript survived Keep editing in the replacement confirmation. Replacing then Undo restored that edited transcript; Redo and reload reconnected the packaged video.
+- Actual Save scene download and Open scene import restored video sample metadata and reset approval to DRAFT. Board sample review enabled export only after Done editing and confirmation.
+- Marking a sample contact height unresolved blocked final confirmation. Explicit illustrative confirmation enabled a real 200 KB WebM export from the new sample.
+- The sample controls fit a 390px viewport with no horizontal overflow. Browser console error log was empty in the inspected run.
+- Public sample-control and asset checks are performed after deployment; real coach data and microphone capture are outside this test.

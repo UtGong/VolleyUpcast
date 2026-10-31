@@ -1,0 +1,538 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-slide",
+  "title": "Sample 1 · Board → 3D · SYNTHETIC DEMO",
+  "revision": 1,
+  "approval": null,
+  "reviewedRevision": null,
+  "duration": 5,
+  "actors": [
+    {
+      "id": "P1",
+      "role": {
+        "value": "passer",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 1,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 2,
+            "z": 6
+          },
+          {
+            "t": 2.8,
+            "x": 2,
+            "z": 6
+          },
+          {
+            "t": 5,
+            "x": 2,
+            "z": 6
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "S2",
+      "role": {
+        "value": "setter",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 2,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 4.5,
+            "z": 1.4
+          },
+          {
+            "t": 2.8,
+            "x": 4.5,
+            "z": 1.4
+          },
+          {
+            "t": 5,
+            "x": 4.5,
+            "z": 1.4
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "M3",
+      "role": {
+        "value": "middle blocker",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 3,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 3.5,
+            "z": 4.5
+          },
+          {
+            "t": 0.5,
+            "x": 3.5,
+            "z": 4.5
+          },
+          {
+            "t": 2.8,
+            "x": 7,
+            "z": 1
+          },
+          {
+            "t": 5,
+            "x": 7.7,
+            "z": 1.8
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "O4",
+      "role": {
+        "value": "outside hitter",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 4,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 1,
+            "z": 2
+          },
+          {
+            "t": 2.8,
+            "x": 1,
+            "z": 2
+          },
+          {
+            "t": 5,
+            "x": 1,
+            "z": 2
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "C5",
+      "role": {
+        "value": "coverage",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 5,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 7,
+            "z": 5
+          },
+          {
+            "t": 2.8,
+            "x": 7,
+            "z": 5
+          },
+          {
+            "t": 5,
+            "x": 7,
+            "z": 5
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "B6",
+      "role": {
+        "value": "blocker",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "rotation": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 6,
+            "z": -1
+          },
+          {
+            "t": 2.8,
+            "x": 6,
+            "z": -1
+          },
+          {
+            "t": 5,
+            "x": 6,
+            "z": -1
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    }
+  ],
+  "contacts": [
+    {
+      "id": "pass",
+      "after": [],
+      "actor": {
+        "value": "P1",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "action": {
+        "value": "forearm pass",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "time": {
+        "value": 0.5,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "x": {
+        "value": 2,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "z": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "height": {
+        "value": 0.9,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "apex": {
+        "value": 3.6,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "set",
+      "after": ["pass"],
+      "actor": {
+        "value": "S2",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "action": {
+        "value": "set",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "time": {
+        "value": 1.8,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "x": {
+        "value": 4.5,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "z": {
+        "value": 1.4,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "height": {
+        "value": 2.1,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "apex": {
+        "value": 3.5,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "attack",
+      "after": ["set"],
+      "actor": {
+        "value": "M3",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "action": {
+        "value": "slide attack",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "time": {
+        "value": 3,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "x": {
+        "value": 7.05,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "z": {
+        "value": 1.08,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "height": {
+        "value": 2.9,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review",
+        "range": [2.7, 3.2]
+      },
+      "apex": {
+        "value": 3.1,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    },
+    {
+      "id": "floor",
+      "after": ["attack"],
+      "actor": {
+        "value": "",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "action": {
+        "value": "landing",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "time": {
+        "value": 4.3,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "x": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "z": {
+        "value": -6,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "height": {
+        "value": 0,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      },
+      "apex": {
+        "value": 0,
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    }
+  ],
+  "ball": {
+    "category": {
+      "value": "indoor volleyball",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "action": {
+      "value": "forearm pass → set → attack",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "style": {
+      "value": "illustrative arc; spin unspecified",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "tempo": {
+      "value": "coach-defined slide tempo",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "spin": {
+      "value": "unspecified",
+      "status": "flexible-not-applicable",
+      "source": "Not needed for this tactical illustration"
+    }
+  },
+  "tactic": {
+    "name": {
+      "value": "Middle slide",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "primitive": {
+      "value": "slide attack",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "playerId": {
+      "value": "M3",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "setterId": {
+      "value": "S2",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "approachStartCue": {
+      "value": "After P1 pass at 0.50s; hold until the cue, then approach by 2.80s",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "approachPath": {
+      "value": "Edit M3 path on board",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "takeoffRegion": {
+      "value": "x 6.5–7.3; z 0.8–1.5",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "landingRegion": {
+      "value": "x 7–8.2; z 1–2.5",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "contactTiming": {
+      "value": "Use attack contact anchor",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "contactHeightRange": {
+      "value": "2.7–3.2 m",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "setTempo": {
+      "value": "Set 1.8s → attack 3.0s; editable",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "attackTarget": {
+      "value": "Opponent court x 6; z −6",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "handednessTechnique": {
+      "value": "Right hand; illustrative one-foot slide, not universal",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "blockerBehavior": {
+      "value": "B6 stationary template; edit path",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "coverageBehavior": {
+      "value": "C5 holds coverage; edit path",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "jointDetail": {
+      "value": "Template limbs only",
+      "status": "flexible-not-applicable",
+      "source": "No measured joint kinematics"
+    }
+  },
+  "transcript": {
+    "value": "SYNTHETIC COACH-STYLE TRANSCRIPT — authored demonstration, not a real recording.\n[rally 0.00s] Near-team actors P1 passer, S2 setter, M3 middle; O4 and C5 hold support. B6 is a stationary template opponent.\n[rally 0.50s] P1 forearm-passes from (x 2.00m, z 6.00m), contact height 0.90m, to S2.\n[rally 1.80s] S2 sets at (x 4.50m, z 1.40m), contact height 2.10m.\n[rally 3.00s] M3 finishes the middle slide and attacks at (x 7.05m, z 1.08m), height 2.90m. This is one illustrative approach, not a universal slide technique.\n[rally 4.30s] Ball lands at opponent-court target (x 6.00m, z −6.00m).\nAll paths, heights and timing are supplied by the synthetic generator. Spin and detailed joints are intentionally unspecified. Review before confirming or exporting.",
+    "status": "approved-illustrative-default",
+    "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+  },
+  "clocks": {
+    "videoOffset": {
+      "value": 0,
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "speechOffset": {
+      "value": 0,
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "animationRate": {
+      "value": 1,
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    },
+    "fps": {
+      "value": 30,
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    }
+  },
+  "observations": [],
+  "calibrations": [],
+  "branches": [
+    {
+      "id": "primary",
+      "label": "Primary tactic",
+      "condition": {
+        "value": "Coach-selected primary pattern",
+        "status": "approved-illustrative-default",
+        "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+      }
+    }
+  ],
+  "sample": {
+    "kind": "board",
+    "id": "board-slide-v1",
+    "baselineRevision": 1,
+    "source": {
+      "value": "Authored synthetic example. Not real coaching data or automatic reconstruction.",
+      "status": "approved-illustrative-default",
+      "source": "Authored synthetic generator scene; illustrative reference, awaiting your scene review"
+    }
+  }
+}

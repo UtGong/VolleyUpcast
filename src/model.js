@@ -5,7 +5,7 @@
 /** @typedef {{id:string,role:Field<string>,rotation:Field<number>,path:Field<Point[]>}} Actor */
 /** @typedef {{id:string,after:string[],actor:Field<string>,action:Field<string>,time:Field<number>,height:Field<number>,x:Field<number>,z:Field<number>,apex:Field<number>}} Contact */
 /** @typedef {{id:string,kind:string,videoTime:number,rallyTime:number,x:number,y:number,note:string,calibrationId:string,status:Provenance}} Observation */
-/** @typedef {{schemaVersion:1,id:string,title:string,revision:number,approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
+/** @typedef {{schemaVersion:1,id:string,title:string,revision:number,sample?:{kind:"board"|"video",id:string,baselineRevision:number,source:Field<string>,clip?:Field<string>,timingTolerance?:Field<number>,clipDuration?:Field<number>},approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
 export const STATUSES = /** @type {Provenance[]} */ ([
   "observed",
   "coach-provided",
@@ -410,6 +410,12 @@ export function parse(text) {
     s.revision < 1
   )
     throw Error("Invalid duration or revision");
+  if (
+    s.sample &&
+    (!["board", "video"].includes(s.sample.kind) ||
+      typeof s.sample.id !== "string")
+  )
+    throw Error("Unsupported sample metadata");
   for (const c of s.contacts)
     for (const key of ["time", "height", "x", "z", "apex"])
       if (!Number.isFinite(c[key]?.value))

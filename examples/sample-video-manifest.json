@@ -1,0 +1,15 @@
+{
+  "source": "SYNTHETIC demo(\"rally\") rendered by VolleyUpcast; not real coach data",
+  "file": "sample-video.webm",
+  "sha256": "697c8dd3c8dc2b7dd16f4c5ae8e56d696115879364e874d5dc6f3e17ae98c005",
+  "width": 900,
+  "height": 620,
+  "nominalDurationSeconds": 5,
+  "nominalFps": 30,
+  "timingToleranceSeconds": 0.07,
+  "contactAnchorsSeconds": [0.5, 1.8, 3, 4.3],
+  "camera": "src/render.js projectPoint; fixed, no cuts",
+  "preparation": "Canvas MediaRecorder capture from rally zero, then FFmpeg stream-copy remux adding duration/cues; no video inference",
+  "encodedFrameCount": 149,
+  "encodedDurationSeconds": 4.97
+}

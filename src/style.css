@@ -525,3 +525,88 @@ canvas:focus-visible {
     grid-template-columns: minmax(90px, 0.7fr) minmax(100px, 1fr);
   }
 }
+
+.samples {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 17px;
+  margin-bottom: 18px;
+}
+.sample-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sample-heading .eyebrow {
+  margin-bottom: 5px;
+}
+.sample-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.sample-card {
+  background: #f7fafd;
+  border: 1px solid #dce7f2;
+  border-radius: 8px;
+  padding: 14px;
+}
+.sample-card h3 {
+  margin: 13px 0 6px;
+  font-size: 15px;
+}
+.sample-card ol {
+  padding-left: 17px;
+  margin: 10px 0;
+  font-size: 11px;
+  color: #536a7e;
+  line-height: 1.65;
+}
+.sample-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  font-size: 10px;
+  margin-top: 12px;
+}
+.sample-links a {
+  color: #145bdf;
+  text-underline-offset: 3px;
+}
+.samples .hint {
+  margin-bottom: 0;
+}
+dialog {
+  max-width: 430px;
+  border: 1px solid #c4d4e4;
+  border-radius: 12px;
+  padding: 23px;
+  color: #182a3a;
+  box-shadow: 0 18px 70px #102b3f40;
+}
+dialog::backdrop {
+  background: #102b3f66;
+}
+dialog p {
+  margin-top: 12px;
+}
+@media (max-width: 760px) {
+  .sample-grid {
+    grid-template-columns: 1fr;
+  }
+  .sample-heading {
+    align-items: start;
+  }
+  .sample-heading button {
+    font-size: 10px;
+  }
+  .samples {
+    padding: 12px;
+  }
+  .sample-card {
+    padding: 12px;
+  }
+}

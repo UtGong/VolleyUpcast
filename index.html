@@ -51,6 +51,69 @@
       <div id="notice" role="status" aria-live="polite">
         Synthetic example loaded. No media leaves your browser.
       </div>
+      <section class="samples" aria-label="Two ready-to-load samples">
+        <div class="sample-heading">
+          <div>
+            <p class="eyebrow">TRY BOTH MODES</p>
+            <h2>Two complete synthetic samples</h2>
+          </div>
+          <button id="reset-sample" disabled>Reset loaded sample</button>
+        </div>
+        <div class="sample-grid">
+          <article class="sample-card">
+            <span class="pill">SAMPLE 1 · BOARD MODE</span>
+            <h3>Middle-blocker slide → 3D</h3>
+            <p>
+              Coach-style transcript, timed player/ball paths, tactic fields and
+              a reviewable illustrative result.
+            </p>
+            <ol>
+              <li>Load the board sample and inspect M3, contacts and notes.</li>
+              <li>Play or edit the supplied slide.</li>
+              <li>
+                Done editing → Review → choose Illustrative mode → Confirm, then
+                export.
+              </li>
+            </ol>
+            <button id="sample-board" class="primary">Load board sample</button>
+            <div class="sample-links">
+              <a href="./examples/sample-board.json" download>Scene JSON</a
+              ><a href="./examples/sample-board-transcript.txt" download
+                >Transcript</a
+              >
+            </div>
+          </article>
+          <article class="sample-card">
+            <span class="pill">SAMPLE 2 · VIDEO MODE</span>
+            <h3>Synthetic rally → supplied 3D scene</h3>
+            <p>
+              A generated clip with matching transcript, four court landmarks,
+              contact annotations and fixed-camera metadata. No automatic
+              reconstruction.
+            </p>
+            <ol>
+              <li>
+                Load the video sample; the clip and annotations open together.
+              </li>
+              <li>Use contact chips or Go to frame; compare source and 3D.</li>
+              <li>Edit and review; confirm Illustrative mode before export.</li>
+            </ol>
+            <button id="sample-video" class="primary">Load video sample</button>
+            <div class="sample-links">
+              <a href="./examples/sample-video.json" download>Scene JSON</a
+              ><a href="./examples/sample-video-transcript.txt" download
+                >Transcript</a
+              ><a href="./examples/sample-video.webm" download
+                >Synthetic clip</a
+              >
+            </div>
+          </article>
+        </div>
+        <p id="active-sample" class="hint">
+          No complete sample selected. Loading a sample never approves it for
+          export.
+        </p>
+      </section>
       <nav class="tabs" aria-label="Workflow">
         <button data-tab="board" class="active">01 · Tactics board</button
         ><button data-tab="video">02 · Video reconstruction</button
@@ -338,6 +401,17 @@
         >
       </footer>
     </main>
+    <dialog id="replace-dialog" aria-labelledby="replace-title">
+      <h2 id="replace-title">Replace the current edited scene?</h2>
+      <p>
+        Save the scene and any recorded audio first if needed. Replacing keeps
+        the scene in Undo history; personal media may need reselecting.
+      </p>
+      <div class="toolbar">
+        <button id="keep-editing">Keep editing</button
+        ><button id="replace-scene" class="primary">Replace scene</button>
+      </div>
+    </dialog>
     <script type="module" src="./src/app.js"></script>
   </body>
 </html>

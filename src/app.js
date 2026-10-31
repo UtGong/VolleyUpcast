@@ -11,6 +11,7 @@ import {
   parse,
 } from "./model.js";
 import { drawBoard, drawScene, unboard } from "./render.js";
+import { makeSample, builtInVideo, SAMPLE_INFO } from "./samples.js";
 const $ = (id) => document.getElementById(id);
 let s = demo(),
   time = 0,
@@ -27,7 +28,12 @@ let s = demo(),
   audioURL = null,
   exporting = false,
   exportCancelled = false,
-  activeCalibration = "";
+  activeCalibration = "",
+  dirty = false,
+  pendingReplacement = null,
+  sampleVideoURL = null,
+  sampleVideoSource = "",
+  sampleMediaRevision = 0;
 const el = (tag, text, cls) => {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text;
@@ -53,6 +59,7 @@ function mutate(fn) {
     for (const o of s.observations)
       o.rallyTime = o.videoTime - s.clocks.videoOffset.value;
     revise(s);
+    dirty = true;
     renderUI();
     store();
   } catch (e) {
@@ -77,6 +84,122 @@ function download(data, name, type) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
+function requestReplacement(action) {
+  if (exporting || recorder?.state === "recording") {
+    notice("Finish export or recording before replacing a scene.");
+    return;
+  }
+  if (dirty || audioBlob) {
+    pendingReplacement = action;
+    $("replace-dialog").showModal();
+  } else action();
+}
+async function syncSampleMedia() {
+  const mediaRevision = ++sampleMediaRevision;
+  const file = builtInVideo(s),
+    video = $("video");
+  if (file) {
+    const target = new URL(file, document.baseURI).href;
+    activeCalibration = s.calibrations[0]?.id || "";
+    if (
+      sampleVideoSource === target &&
+      sampleVideoURL &&
+      video.src === sampleVideoURL
+    )
+      return;
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    try {
+      const response = await fetch(target);
+      if (!response.ok) throw Error("Sample clip could not be loaded");
+      const blob = await response.blob();
+      if (mediaRevision !== sampleMediaRevision || !builtInVideo(s)) return;
+      if (sampleVideoURL) URL.revokeObjectURL(sampleVideoURL);
+      sampleVideoURL = URL.createObjectURL(blob);
+      sampleVideoSource = target;
+      video.src = sampleVideoURL;
+      video.load();
+    } catch (e) {
+      if (mediaRevision === sampleMediaRevision)
+        notice(e.message + ". Reload the video sample to retry.");
+    }
+  } else {
+    if (sampleVideoURL) {
+      if (video.src === sampleVideoURL) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      }
+      URL.revokeObjectURL(sampleVideoURL);
+      sampleVideoURL = null;
+      sampleVideoSource = "";
+    }
+  }
+}
+function sampleStatus() {
+  const info = s.sample && SAMPLE_INFO[s.sample.kind];
+  $("reset-sample").disabled = !info;
+  $("active-sample").textContent = info
+    ? `${info.title} loaded · ${dirty ? "edited draft" : "supplied illustrative inputs"} · ${s.approval ? "review confirmed" : "review and confirmation still required"}. ${s.sample.kind === "video" ? "Clip alignment tolerance ±0.07s. " : ""}All examples are synthetic.`
+    : "No complete sample selected. Loading a sample never approves it for export.";
+}
+function loadSample(kind) {
+  const revision = s.revision;
+  mutate(() => {
+    s = makeSample(kind);
+    s.revision = revision;
+    s.sample.baselineRevision = revision + 1;
+    time = 0;
+    playing = false;
+    draft = [];
+    drawing = false;
+    activeCalibration = "";
+  });
+  dirty = false;
+  if (audioBlob) {
+    $("audio").pause();
+    $("audio").removeAttribute("src");
+    $("audio").load();
+    if (audioURL) URL.revokeObjectURL(audioURL);
+    audioURL = null;
+    audioBlob = null;
+    $("save-audio").disabled = true;
+  }
+  if (videoURL) {
+    URL.revokeObjectURL(videoURL);
+    videoURL = null;
+  }
+  syncSampleMedia();
+  sampleStatus();
+  chooseTab(kind);
+  $("illustrative").checked = false;
+  $("play").textContent = "▶ Play";
+  notice(
+    `${SAMPLE_INFO[kind].title} loaded. Synthetic source inputs and scene are editable. Inspect them, then review and confirm before exporting.`,
+  );
+}
+$("sample-board").onclick = () => requestReplacement(() => loadSample("board"));
+$("sample-video").onclick = () => requestReplacement(() => loadSample("video"));
+$("reset-sample").onclick = () => {
+  const kind = s.sample?.kind;
+  if (kind) requestReplacement(() => loadSample(kind));
+};
+$("keep-editing").onclick = () => {
+  $("replace-dialog").close();
+  pendingReplacement = null;
+  renderUI();
+};
+$("replace-scene").onclick = () => {
+  const action = pendingReplacement;
+  pendingReplacement = null;
+  $("replace-dialog").close();
+  action?.();
+};
+$("replace-dialog").oncancel = () => {
+  pendingReplacement = null;
+  renderUI();
+};
 function chooseTab(name) {
   for (const b of document.querySelectorAll("[data-tab]"))
     b.classList.toggle("active", b.dataset.tab === name);
@@ -229,6 +352,7 @@ function renderUI() {
     s.reviewedRevision === s.revision
       ? `Reviewing revision ${s.revision}. Confirm after checking the ledger.`
       : "Finish editing to review this revision.";
+  sampleStatus();
   renderActor();
   renderContact();
   for (const [id, obj] of [
@@ -245,6 +369,13 @@ function renderUI() {
     const b = el("button", `${c.id} ${c.time.value.toFixed(1)}s`);
     b.onclick = () => {
       time = c.time.value;
+      playing = false;
+      $("play").textContent = "▶ Play";
+      if ($("video").src && Number.isFinite($("video").duration))
+        $("video").currentTime = Math.max(
+          0,
+          Math.min($("video").duration, time + s.clocks.videoOffset.value),
+        );
       $("contact").value = c.id;
       renderContact();
       draw();
@@ -361,17 +492,24 @@ $("actor").onchange = () => {
 $("contact").onchange = renderContact;
 for (const b of document.querySelectorAll("[data-tab]"))
   b.onclick = () => chooseTab(b.dataset.tab);
-$("template").onchange = () =>
-  mutate(() => {
-    s = demo($("template").value);
-    time = 0;
-    activeCalibration = "";
+$("template").onchange = () => {
+  const kind = $("template").value;
+  requestReplacement(() => {
+    mutate(() => {
+      s = demo(kind);
+      time = 0;
+      activeCalibration = "";
+    });
+    syncSampleMedia();
   });
+};
 $("undo").onclick = () => {
   if (!history.length || exporting) return;
   future.push(serialize(s));
   s = parse(history.pop());
   activeCalibration = "";
+  dirty = true;
+  syncSampleMedia();
   renderUI();
   store();
   notice("Undo restored a draft; approval must be renewed.");
@@ -381,24 +519,33 @@ $("redo").onclick = () => {
   history.push(serialize(s));
   s = parse(future.pop());
   activeCalibration = "";
+  dirty = true;
+  syncSampleMedia();
   renderUI();
   store();
 };
-$("save").onclick = () =>
+$("save").onclick = () => {
   download(serialize(s), "volleyupcast-scene.json", "application/json");
+  dirty = false;
+  sampleStatus();
+};
 $("load").onchange = async () => {
   const f = $("load").files[0];
   if (f)
     try {
       const loaded = parse(await f.text());
-      mutate(() => {
-        s = loaded;
-        time = 0;
-        activeCalibration = "";
+      requestReplacement(() => {
+        mutate(() => {
+          s = loaded;
+          time = 0;
+          activeCalibration = "";
+        });
+        syncSampleMedia();
+        if (s.sample) chooseTab(s.sample.kind);
+        notice(
+          "Scene loaded. Built-in sample video reconnects automatically; personal media must be reselected. Review again before exporting.",
+        );
       });
-      notice(
-        "Scene loaded. Local media must be reselected. Approval requires a fresh review.",
-      );
     } catch (e) {
       notice("Scene rejected: " + e.message);
     }
@@ -640,6 +787,7 @@ $("video-file").onchange = () => {
   $("video").src = videoURL;
   activeCalibration = "";
   mutate(() => {
+    delete s.sample;
     for (const c of s.contacts)
       for (const k of ["actor", "time", "height", "x", "z", "apex"]) {
         if (k === "actor" && c.action.value === "landing") continue;
@@ -681,6 +829,14 @@ $("video").ontimeupdate = () => {
   drawAnnotations();
 };
 $("video").onseeked = drawAnnotations;
+$("video").onloadedmetadata = () => {
+  if (builtInVideo(s))
+    $("video").currentTime = Math.max(
+      0,
+      Math.min($("video").duration, time + s.clocks.videoOffset.value),
+    );
+  drawAnnotations();
+};
 $("align-video").onclick = () =>
   mutate(() => {
     s.clocks.videoOffset = field(
@@ -793,7 +949,7 @@ function renderObservations() {
     $("observations").append(
       el(
         "div",
-        `${c.id}: ${c.validFrom.toFixed(3)}–${c.validUntil?.toFixed(3) ?? "open"}s · ${c.landmarks.length} landmarks · observed only`,
+        `${c.id}: ${c.validFrom.toFixed(3)}–${c.validUntil?.toFixed(3) ?? "open"}s · ${c.landmarks.length} landmarks · ${c.status} · landmark record, not a solved camera`,
         "observation",
       ),
     );
@@ -810,6 +966,17 @@ function renderObservations() {
         `Image (${o.x.toFixed(3)}, ${o.y.toFixed(3)}) · ${o.note} · ${o.calibrationId || "uncalibrated"}`,
       ),
     );
+    const seek = el("button", "Go to frame");
+    seek.onclick = () => {
+      const v = $("video");
+      v.pause();
+      if (v.src) v.currentTime = o.videoTime;
+      time = Math.max(0, Math.min(s.duration, o.rallyTime));
+      playing = false;
+      $("play").textContent = "▶ Play";
+      draw();
+    };
+    row.append(seek);
     const del = el("button", "Remove");
     del.onclick = () =>
       mutate(() => {
@@ -914,6 +1081,7 @@ $("export-video").onclick = async () => {
 window.addEventListener("beforeunload", () => {
   if (recorder?.state === "recording") recorder.stop();
   if (videoURL) URL.revokeObjectURL(videoURL);
+  if (sampleVideoURL) URL.revokeObjectURL(sampleVideoURL);
   if (audioURL) URL.revokeObjectURL(audioURL);
 });
 function tick(now) {
@@ -943,12 +1111,17 @@ try {
   const saved = localStorage.getItem("volleyupcast.scene.v1");
   if (saved) {
     s = parse(saved);
+    dirty = !s.sample || s.revision !== s.sample.baselineRevision;
     notice(
-      "Local draft restored. Reopen local media and review again before exporting.",
+      s.sample
+        ? "Saved sample draft restored; its packaged clip reconnects automatically. Review again before exporting."
+        : "Local draft restored. Reopen personal media and review again before exporting.",
     );
   }
 } catch {
   notice("Saved draft could not be restored. Synthetic template loaded.");
 }
+syncSampleMedia();
 renderUI();
+if (s.sample) chooseTab(s.sample.kind);
 requestAnimationFrame(tick);

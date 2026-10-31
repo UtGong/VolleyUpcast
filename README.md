@@ -23,6 +23,26 @@ npm run check
 
 The GitHub Pages workflow builds and checks `main`, then deploys only `dist/`. Assets and the home link use relative URLs so the same build works under `/VolleyUpcast/` and on loopback. Browser media, recordings and local draft storage remain on the testing device. Microphone recording requires HTTPS (or localhost), browser support, and a deliberate permission grant. WebM export remains browser-dependent. No service worker or server-side media storage is configured.
 
+## Two ready-to-load samples
+
+Use the two sample cards near the top of the live app. Both are clearly labelled synthetic, include editable inputs, and start without export approval. Replacing edited work opens a confirmation; Keep editing preserves it. Undo restores the prior scene. Personal videos may need reselecting after replacement; packaged sample media reconnects automatically on JSON open, undo and reload.
+
+**Sample 1 · Board → 3D — middle-blocker slide**
+
+1. Click **Load board sample**. Inspect the authored coach-style transcript, M3 approach cue/path, ball classification, contact anchors, ranges and tactic parameters.
+2. Play the supplied 3D illustration or edit paths/contacts/notes.
+3. Choose **Done editing → Review**, select **Illustrative mode**, then **Confirm reviewed scene** and export.
+
+**Sample 2 · Video → 3D — synthetic pass–set–attack**
+
+1. Click **Load video sample**. A 4.97-second, silent synthetic clip opens with its matching transcript, four court landmarks, four contact annotations and a supplied reconstruction scene.
+2. Use a contact chip or **Go to frame** to compare source and 3D; edit the linked inputs. Source-image annotations use the same fixed-camera projection as the generator, not an automatic detector. No real coach footage is included.
+3. Review, select **Illustrative mode**, confirm and export. The complete sample has supplied illustrative values; setting a critical field unresolved still blocks final approval until resolved or explicitly illustrated.
+
+Each card links its scene JSON and transcript; the video card also links the indexed WebM. **Reset loaded sample** restores its original inputs after confirmation when edited. The clip is downloaded from the same static site into a browser blob for reliable seeking; personal media is never uploaded. Nominal rally time is 5 seconds, with source recording/seek tolerance ±0.07s and a 4.97-second encoded tail. Contact anchors are 0.50, 1.80, 3.00 and 4.30 seconds. All occur inside the camera calibration interval. Spin and detailed joints remain intentionally flexible.
+
+The reference clip was recorded from `demo("rally")` starting at rally zero, then stream-copy remuxed with FFmpeg to add a duration and seek index. This is an asset preparation step, not a runtime dependency or model call. `examples/sample-video-manifest.json` records the clip SHA-256 and metadata; tests check sample fixtures, transcript/contact consistency, source projection, known-media allowlisting and review gates.
+
 ## Try the two workflows
 
 1. **Tactics board:** choose the middle-slide or pass–set–attack synthetic study. Select a stable actor ID and draw a timed path. Use the ball tool to place the selected contact, or edit all positions and times numerically. Review actor roles/rotation, ball category/action/style/tempo, primitive (slide attack or blocking shuffle are distinct choices), and tactic parameters. Text fields with suggestions remain freely editable. Classification does not determine measured trajectories.

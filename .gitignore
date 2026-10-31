@@ -16,3 +16,6 @@ recordings/
 *.vtt
 *.srt
 qa-local/
+
+# One explicit, generated public demonstration clip; user recordings stay ignored.
+!examples/sample-video.webm

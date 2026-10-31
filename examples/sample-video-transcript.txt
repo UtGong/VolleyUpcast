@@ -1,0 +1,7 @@
+SYNTHETIC COACH-STYLE TRANSCRIPT — authored demonstration, not a real recording.
+[rally 0.00s] Near-team actors P1 passer, S2 setter, M3 middle; O4 and C5 hold support. B6 is a stationary template opponent.
+[rally 0.50s] P1 forearm-passes from (x 2.00m, z 6.00m), contact height 0.90m, to S2.
+[rally 1.80s] S2 sets at (x 4.50m, z 1.40m), contact height 2.10m.
+[rally 3.00s] M3 attacks at (x 4.03m, z 1.08m), height 2.90m. This sample is a standard pass–set–attack, not a slide.
+[rally 4.30s] Ball lands at opponent-court target (x 6.00m, z −6.00m).
+All paths, heights and timing are supplied by the synthetic generator. Spin and detailed joints are intentionally unspecified. Review before confirming or exporting.

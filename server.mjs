@@ -7,6 +7,8 @@ const mime = {
   ".js": "text/javascript",
   ".css": "text/css",
   ".json": "application/json",
+  ".webm": "video/webm",
+  ".txt": "text/plain; charset=utf-8",
 };
 createServer(async (req, res) => {
   try {

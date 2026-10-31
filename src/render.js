@@ -108,15 +108,7 @@ export function drawBoard(canvas, s, t, selected, draft = []) {
     c.stroke();
   }
 }
-export function drawScene(canvas, s, t) {
-  const c = canvas.getContext("2d"),
-    w = canvas.width,
-    h = canvas.height;
-  const scale = w / 900;
-  c.save();
-  c.scale(scale, scale);
-  c.fillStyle = "#102b3f";
-  c.fillRect(0, 0, 900, 620);
+const project = (() => {
   // A true 3D pinhole projection: world x/y/z -> camera, perspective divide.
   const camera = { x: 16, y: 15, z: 22 },
     target = { x: 4.5, y: 0, z: 0 };
@@ -135,7 +127,7 @@ export function drawScene(canvas, s, t) {
     r[2] * f[0] - r[0] * f[2],
     r[0] * f[1] - r[1] * f[0],
   ];
-  const proj = (x, y, z) => {
+  return (x, y, z) => {
     const v = [x - camera.x, y - camera.y, z - camera.z];
     const depth = v.reduce((a, b, i) => a + b * f[i], 0);
     return {
@@ -144,6 +136,23 @@ export function drawScene(canvas, s, t) {
       depth,
     };
   };
+})();
+
+// Shared source-image projection for generated demonstration annotations.
+export function projectPoint(x, y, z) {
+  return project(x, y, z);
+}
+
+export function drawScene(canvas, s, t) {
+  const c = canvas.getContext("2d"),
+    w = canvas.width,
+    h = canvas.height;
+  const scale = w / 900;
+  c.save();
+  c.scale(scale, scale);
+  c.fillStyle = "#102b3f";
+  c.fillRect(0, 0, 900, 620);
+  const proj = projectPoint;
   const line = (a, b, color, width = 2) => {
     const p = proj(...a),
       q = proj(...b);

@@ -19,7 +19,7 @@ test("build allowlist excludes local QA media, recordings and credentials", asyn
     for (const e of await readdir(dir, { withFileTypes: true })) {
       const path = dir + "/" + e.name;
       if (e.isDirectory()) await walk(path);
-      else
+      else if (path !== "examples/sample-video.webm")
         assert(
           !/\.(webm|mp4|mov|wav|mp3|m4a|jpg|png)$|\.env/i.test(e.name),
           path,
