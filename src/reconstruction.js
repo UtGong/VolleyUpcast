@@ -2,6 +2,25 @@
 export function unbindVideo(s, sha256) {
   delete s.sample;
   delete s.motion;
+  delete s.performance;
+  if (!s.contacts.length) {
+    const f = (value) => ({
+      value,
+      status: "unresolved",
+      source: "Unbound manual editor scaffold",
+    });
+    s.contacts = [0, 1].map((i) => ({
+      id: `contact-${i + 1}`,
+      after: i ? ["contact-1"] : [],
+      actor: f(s.actors[0].id),
+      action: f("unknown contact"),
+      time: f(((i + 1) * s.duration) / 3),
+      height: f(2.6),
+      x: f(0),
+      z: f(0),
+      apex: f(2.9),
+    }));
+  }
   s.videoBinding = {
     state: "unbound",
     source: "User-selected local clip; bytes remain on this device",

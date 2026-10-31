@@ -1,3 +1,4 @@
+import { drawFocused } from "./focus-render.js";
 import { skeletonAt, rigFor } from "./motion.js";
 import { buildMannequin } from "./mannequin.js";
 import { actorAt, ballAt } from "./model.js";
@@ -22,6 +23,11 @@ export function unboard(x, y) {
   };
 }
 export function drawBoard(canvas, s, t, selected, draft = []) {
+  if (s.performance)
+    return drawFocused(canvas, s, t, {
+      focusCamera: "source",
+      showJoints: true,
+    });
   const c = canvas.getContext("2d");
   c.clearRect(0, 0, 900, 620);
   c.fillStyle = "#eef4f7";
@@ -168,6 +174,7 @@ export function projectPoint(x, y, z) {
 }
 
 export function drawScene(canvas, s, t, options = {}) {
+  if (s.performance) return drawFocused(canvas, s, t, options);
   const c = canvas.getContext("2d"),
     w = canvas.width,
     h = canvas.height;

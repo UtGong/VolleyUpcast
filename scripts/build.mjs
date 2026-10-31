@@ -2,7 +2,7 @@ import { rm, mkdir, cp, writeFile, readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 await rm("dist", { recursive: true, force: true });
 await mkdir("dist");
-for (const p of ["index.html", "src", "examples"])
+for (const p of ["index.html", "src", "examples", "vendor", "models"])
   await cp(p, `dist/${p}`, { recursive: true });
 const files = (await readdir("src"))
   .filter((p) => /\.(js|css)$/.test(p))

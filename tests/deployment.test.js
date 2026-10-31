@@ -14,7 +14,9 @@ test("entry assets resolve under a project subpath and privacy CSP survives stat
 });
 test("build allowlist excludes local QA media, recordings and credentials", async () => {
   const builder = await readFile("scripts/build.mjs", "utf8");
-  assert(builder.includes('["index.html", "src", "examples"]'));
+  assert(
+    builder.includes('["index.html", "src", "examples", "vendor", "models"]'),
+  );
   const walk = async (dir) => {
     for (const e of await readdir(dir, { withFileTypes: true })) {
       const path = dir + "/" + e.name;
@@ -32,4 +34,24 @@ test("build allowlist excludes local QA media, recordings and credentials", asyn
     }
   };
   await walk("examples");
+});
+
+test("self-hosted model assets match pinned integrity and stay within the approved transfer budget", async () => {
+  const { createHash } = await import("node:crypto");
+  const m = JSON.parse(await readFile("models/manifest.json", "utf8"));
+  assert(m.totalTransferredBytes < m.approvedCeilingBytes);
+  for (const f of m.servedFiles) {
+    assert(/^(vendor|models)\//.test(f.path));
+    assert(!f.path.includes(".."));
+    const data = await readFile(f.path);
+    assert.equal(data.length, f.bytes, f.path);
+    assert.equal(
+      createHash("sha256").update(data).digest("hex"),
+      f.sha256,
+      f.path,
+    );
+  }
+  const speech = await readFile("src/speech-worker.js", "utf8");
+  assert(speech.includes("env.allowRemoteModels = false"));
+  assert(speech.includes("local_files_only: true"));
 });

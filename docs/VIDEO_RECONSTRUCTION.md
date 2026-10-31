@@ -1,6 +1,6 @@
 # From real clip to a defensible motion study
 
-The working path is local source seeking → explicit manual reconstruction → anonymous player association → visible 2D observations → conditional arm-plane fit/numeric body constraints → reviewed keyframes → illustrative export. It is not automatic match reconstruction. A second camera or measured motion is needed to constrain many otherwise ambiguous 3D motions.
+The primary path is local source → tap one anonymous key player → on-device pose/identity proposals → inspect source overlay and selected-player 3D → optional voice correction preview → coach review → illustrative export. See the README for the working controls. Advanced manual observations and arm-plane templates remain a separate fallback; they are not the main annotation requirement. This is not complete automatic match reconstruction. A second camera or measured motion is needed to constrain many otherwise ambiguous 3D motions.
 
 ## Information the coach must supply or review
 

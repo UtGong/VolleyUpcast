@@ -1,3 +1,4 @@
+import { setupFocus } from "./focus-ui.js";
 import {
   demo,
   RIG_LIMITS,
@@ -33,6 +34,7 @@ import {
   sameLocalVideo,
 } from "./reconstruction.js";
 import { makeSample, builtInVideo, SAMPLE_INFO } from "./samples.js";
+let focusUI;
 const $ = (id) => document.getElementById(id);
 let s = demo(),
   time = 0,
@@ -75,11 +77,16 @@ function snapshot() {
   future = [];
 }
 function mutate(fn) {
+  if (focusUI?.busy) {
+    notice("Finish or cancel local processing before editing.");
+    return false;
+  }
   if (exporting) {
     notice("Stop or finish video export before editing.");
     return false;
   }
   snapshot();
+  focusUI?.clearPreview();
   pendingMotion = null;
   motionFormDirty = false;
   try {
@@ -133,8 +140,10 @@ function requestReplacement(action) {
     sampleFeedback("loading", "A sample is still loading. Please wait.");
     return;
   }
-  if (exporting || recorder?.state === "recording") {
-    notice("Finish export or recording before replacing a scene.");
+  if (exporting || focusUI?.busy || recorder?.state === "recording") {
+    notice(
+      "Finish or cancel processing, export or recording before replacing a scene.",
+    );
     return;
   }
   if (dirty || audioBlob || motionFormDirty) {
@@ -202,9 +211,11 @@ async function syncSampleMedia() {
 function sampleStatus() {
   const info = s.sample && SAMPLE_INFO[s.sample.kind];
   $("reset-sample").disabled = !info;
-  $("active-sample").textContent = info
-    ? `${info.title} loaded · ${dirty ? "edited draft" : "supplied illustrative inputs"} · ${s.approval ? "review confirmed" : "review and confirmation still required"}. ${s.sample.kind === "match" ? "Real licensed source; 3D covers only source 1.50–2.70s and contains unconfirmed manual assumptions." : (s.sample.kind === "video" ? "Clip alignment tolerance ±0.07s. " : "") + "Synthetic example."}`
-    : "No complete sample selected. Loading a sample never approves it for export.";
+  $("active-sample").textContent = s.performance
+    ? `Selected-player body proposal · source ${s.performance.interval.value[0].toFixed(2)}–${s.performance.interval.value[1].toFixed(2)}s · actual local inference, uncertain 3D depth · review required.`
+    : info
+      ? `${info.title} loaded · ${dirty ? "edited draft" : "supplied illustrative inputs"} · ${s.approval ? "review confirmed" : "review and confirmation still required"}. ${s.sample.kind === "match" ? "Real licensed source; 3D covers only source 1.50–2.70s and contains unconfirmed manual assumptions." : (s.sample.kind === "video" ? "Clip alignment tolerance ±0.07s. " : "") + "Synthetic example."}`
+      : "No complete sample selected. Loading a sample never approves it for export.";
 }
 async function loadSample(kind) {
   sampleLoading = true;
@@ -276,6 +287,22 @@ async function loadSample(kind) {
 $("sample-board").onclick = () => requestReplacement(() => loadSample("board"));
 $("sample-video").onclick = () => requestReplacement(() => loadSample("video"));
 $("sample-match").onclick = () => requestReplacement(() => loadSample("match"));
+$("try-focus-sample").onclick = () =>
+  requestReplacement(async () => {
+    await loadSample("match");
+    playing = false;
+    $("play").textContent = "▶ Play";
+    mutate(() => {
+      delete s.motion;
+      delete s.performance;
+      s.videoBinding = {
+        state: "unbound",
+        source:
+          "Licensed real clip ready for on-device selected-player inference",
+      };
+    });
+    await focusUI.startExample();
+  });
 $("reset-sample").onclick = () => {
   const kind = s.sample?.kind;
   if (kind) requestReplacement(() => loadSample(kind));
@@ -917,14 +944,16 @@ $("cue-clarification").onchange = () => {
 function renderUI() {
   $("video-binding").textContent =
     s.videoBinding?.state === "unbound"
-      ? "LOCAL CLIP · NO 3D RECONSTRUCTION. The prepared demo has been cleared. Identify players, contacts and frames; start a manual illustration explicitly."
-      : s.videoBinding?.state === "manual"
-        ? "MANUAL RECONSTRUCTION · " +
-          s.videoBinding.source +
-          " Placement and hidden depth require review. No automatic pose extraction."
-        : s.sample?.kind === "video"
-          ? "SYNTHETIC EXAMPLE · prepared clip and supplied 3D scene, not video-extracted motion."
-          : "No local clip is bound to a reconstructed scene.";
+      ? "LOCAL CLIP · NO 3D RECONSTRUCTION. Tap a key player and Follow to propose motion locally, or use advanced manual reconstruction."
+      : s.videoBinding?.state === "focused"
+        ? "ON-DEVICE BODY PROPOSAL · One selected player. Orange source joints have low model visibility. Hidden depth is inferred; no ball or court reconstruction."
+        : s.videoBinding?.state === "manual"
+          ? "MANUAL RECONSTRUCTION · " +
+            s.videoBinding.source +
+            " Placement and hidden depth require review. No automatic pose extraction."
+          : s.sample?.kind === "video"
+            ? "SYNTHETIC EXAMPLE · prepared clip and supplied 3D scene, not video-extracted motion."
+            : "No local clip is bound to a reconstructed scene.";
   $("begin-reconstruction").hidden = s.videoBinding?.state !== "unbound";
   if (s.id === "synthetic-pass-set-attack") $("template").value = "rally";
   else if (s.id === "synthetic-slide") $("template").value = "slide";
@@ -1031,6 +1060,7 @@ function renderUI() {
     const label = el("p", branch.label, "hint");
     $("branches").append(label);
   }
+  focusUI?.render();
   draw();
 }
 function renderActor() {
@@ -1090,7 +1120,8 @@ function renderContact() {
 }
 function draw() {
   time = Math.max(0, Math.min(s.duration, time));
-  const display = pendingMotion ? previewPlan(s, pendingMotion) : s;
+  const display =
+    focusUI?.preview(pendingMotion ? previewPlan(s, pendingMotion) : s) || s;
   drawBoard($("board"), display, time, $("actor").value, draft);
   drawScene($("scene"), display, time, {
     focusActor:
@@ -1098,11 +1129,12 @@ function draw() {
     compareTo: pendingMotion ? s : null,
     showJoints: $("show-joints").checked,
   });
-  $("approval-pill").textContent = pendingMotion
-    ? "UNCONFIRMED PREVIEW"
-    : s.approval
-      ? `${s.approval.mode.toUpperCase()} APPROVED`
-      : "DRAFT";
+  $("approval-pill").textContent =
+    pendingMotion || focusUI?.pending
+      ? "UNCONFIRMED PREVIEW"
+      : s.approval
+        ? `${s.approval.mode.toUpperCase()} APPROVED`
+        : "DRAFT";
   $("timeline").value = time;
   $("time-label").textContent =
     `${time.toFixed(2)} / ${s.duration.toFixed(2)}s`;
@@ -1163,7 +1195,7 @@ $("load").onchange = async () => {
           activeCalibration = "";
         });
         syncSampleMedia();
-        if (s.sample) chooseTab(s.sample.kind);
+        if (s.sample) chooseTab(s.sample.kind === "board" ? "board" : "video");
         notice(
           "Scene loaded. Built-in sample video reconnects automatically; personal media must be reselected. Review again before exporting.",
         );
@@ -1301,6 +1333,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     finishPath(true);
     if (exporting) exportCancelled = true;
+    if (focusUI?.busy) focusUI.cancel();
     playing = false;
     $("play").textContent = "▶ Play";
     notice("Interaction stopped. Any interrupted export is discarded.");
@@ -1377,7 +1410,7 @@ $("record").onclick = async () => {
     recorder.ondataavailable = (e) => {
       if (e.data.size) audioChunks.push(e.data);
     };
-    recorder.onstop = () => {
+    recorder.onstop = async () => {
       audioBlob = new Blob(audioChunks, { type: recorder.mimeType });
       if (audioURL) URL.revokeObjectURL(audioURL);
       audioURL = URL.createObjectURL(audioBlob);
@@ -1386,9 +1419,8 @@ $("record").onclick = async () => {
       stream.getTracks().forEach((t) => t.stop());
       $("record").disabled = false;
       $("stop-record").disabled = true;
-      notice(
-        "Audio recorded locally. Type or import transcript; no automatic transcription was used.",
-      );
+      notice("Audio recorded locally. Starting on-device transcription…");
+      await focusUI.recorded(audioBlob);
     };
     recorder.start();
     $("record").disabled = true;
@@ -1519,8 +1551,18 @@ $("seek-source").onclick = () => {
   playing = false;
   v.currentTime = t;
 };
-$("video").onseeked = drawAnnotations;
+$("video").onseeked = () => {
+  if (s.performance && !focusUI?.busy && !exporting) {
+    time = Math.max(
+      0,
+      Math.min(s.duration, $("video").currentTime - s.clocks.videoOffset.value),
+    );
+    draw();
+  }
+  drawAnnotations();
+};
 $("video").onloadedmetadata = () => {
+  focusUI?.mediaChanged();
   if (s.videoBinding?.state === "unbound") {
     mutate(() => setUnboundDuration(s, $("video").duration));
     draw();
@@ -1636,10 +1678,9 @@ function imageBounds() {
 $("annotations").onclick = (e) => {
   const r = $("annotations").getBoundingClientRect(),
     b = imageBounds();
-  addObservation(
-    (((e.clientX - r.left) * 900) / r.width - b.x) / b.w,
-    (((e.clientY - r.top) * 506) / r.height - b.y) / b.h,
-  );
+  const x = (((e.clientX - r.left) * 900) / r.width - b.x) / b.w,
+    y = (((e.clientY - r.top) * 506) / r.height - b.y) / b.h;
+  if (!focusUI?.selectPoint(x, y)) addObservation(x, y);
 };
 $("add-observation").onclick = () =>
   addObservation(Number($("image-x").value), Number($("image-y").value));
@@ -1699,6 +1740,7 @@ function drawAnnotations() {
     return;
   }
   const b = imageBounds();
+  focusUI?.overlay(c, b);
   for (const [index, o] of s.observations.entries()) {
     if (Math.abs(o.videoTime - $("video").currentTime) >= 0.07) continue;
     c.fillStyle = "#ffe075";
@@ -1712,8 +1754,10 @@ function drawAnnotations() {
   }
 }
 $("export-video").onclick = async () => {
-  if (pendingMotion) {
-    notice("Confirm or discard the motion preview before exporting.");
+  if (pendingMotion || focusUI?.pending || focusUI?.busy) {
+    notice(
+      "Confirm or discard the motion preview and finish processing before exporting.",
+    );
     return;
   }
   if (!canExport(s)) {
@@ -1827,7 +1871,25 @@ try {
 } catch {
   notice("Saved draft could not be restored. Synthetic template loaded.");
 }
+focusUI = setupFocus({
+  getScene: () => s,
+  mutate,
+  draw,
+  notice,
+  getTime: () => time,
+  boardCue: (text) => {
+    $("motion-cue").value = text;
+    showMotionPlan(proposeCue(s, poseForm(), text));
+    notice(
+      "Voice instruction staged for the selected board player/event. Inspect and confirm the motion preview.",
+    );
+  },
+  setTime: (t) => {
+    time = t;
+    playing = false;
+  },
+});
 syncSampleMedia();
 renderUI();
-if (s.sample) chooseTab(s.sample.kind);
+if (s.sample) chooseTab(s.sample.kind === "board" ? "board" : "video");
 requestAnimationFrame(tick);

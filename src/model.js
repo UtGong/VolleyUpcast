@@ -1,3 +1,4 @@
+import { validateFocus } from "./focus.js";
 // @ts-check
 /** @typedef {'observed'|'coach-provided'|'inferred-awaiting-review'|'approved-illustrative-default'|'flexible-not-applicable'|'unresolved'} Provenance */
 /** @template T @typedef {{value:T,status:Provenance,source:string,range?:number[]}} Field */
@@ -6,7 +7,7 @@
 /** @typedef {{id:string,after:string[],actor:Field<string>,action:Field<string>,time:Field<number>,height:Field<number>,x:Field<number>,z:Field<number>,apex:Field<number>}} Contact */
 /** @typedef {{id:string,kind:string,videoTime:number,rallyTime:number,x:number,y:number,note:string,calibrationId:string,status:Provenance,actorId?:string,jointName?:string}} Observation */
 /** @typedef {{id:string,actorId:string,eventId:string,time:Field<number>,span:Field<number>,phase:Field<string>,plant:Field<string>,params:Record<string,Field<number>>,depth:Field<string>,videoTime?:Field<number>,imageJoints?:Record<string,Field<{x:number,y:number}>>,imageFit?:Field<string>}} MotionKey */
-/** @typedef {{schemaVersion:1,id:string,title:string,revision:number,videoBinding?:{state:"unbound"|"manual",source:string,sha256?:string},motion?:{version:1,rigs:Record<string,Record<string,Field<number>>>,keys:MotionKey[]},sample?:{kind:"board"|"video"|"match",id:string,baselineRevision:number,source:Field<string>,clip?:Field<string>,timingTolerance?:Field<number>,clipDuration?:Field<number>},approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
+/** @typedef {{performance?:Record<string,any>,schemaVersion:1,id:string,title:string,revision:number,videoBinding?:{state:"unbound"|"manual"|"focused",source:string,sha256?:string},motion?:{version:1,rigs:Record<string,Record<string,Field<number>>>,keys:MotionKey[]},sample?:{kind:"board"|"video"|"match",id:string,baselineRevision:number,source:Field<string>,clip?:Field<string>,timingTolerance?:Field<number>,clipDuration?:Field<number>},approval:null|{revision:number,mode:'final'|'illustrative'},reviewedRevision:number|null,duration:number,actors:Actor[],contacts:Contact[],ball:Record<string,Field<string>>,tactic:Record<string,Field<string>>,transcript:Field<string>,clocks:{videoOffset:Field<number>,speechOffset:Field<number>,animationRate:Field<number>,fps:Field<number>},observations:Observation[],calibrations:{id:string,validFrom:number,validUntil:number|null,landmarks:{x:number,y:number,label:string}[],status:Provenance}[],branches:{id:string,label:string,condition:Field<string>}[]}} Scenario */
 export const RIG_LIMITS = /** @type {Record<string,number[]>} */ ({
   shoulderHeight: [1, 1.95],
   shoulderWidth: [0.25, 0.75],
@@ -329,7 +330,7 @@ export function validate(s) {
     for (const [k, x] of Object.entries(o)) walk(x, p ? `${p}.${k}` : k);
   };
   walk(s, "");
-  if (s.contacts.length < 2)
+  if (s.contacts.length < 2 && !s.performance)
     add("contacts", "At least two contact anchors needed", 100);
   for (const key of ["playerId", "setterId"])
     if (
@@ -355,7 +356,7 @@ export function validate(s) {
     if (s.videoBinding.sha256 && !/^[a-f0-9]{64}$/.test(s.videoBinding.sha256))
       add("videoBinding", "Invalid local clip content identity", 100);
     if (
-      !["unbound", "manual"].includes(s.videoBinding.state) ||
+      !["unbound", "manual", "focused"].includes(s.videoBinding.state) ||
       typeof s.videoBinding.source !== "string"
     )
       add("videoBinding", "Unknown video reconstruction binding", 100);
@@ -366,6 +367,17 @@ export function validate(s) {
         100,
       );
   }
+  if (s.performance) {
+    for (const message of validateFocus(s.performance, s))
+      add("performance", message, 100);
+    add(
+      "performance.depth",
+      "Single-view body depth, root travel and low-visibility joints are model estimates. This workflow supports labelled illustrative export only.",
+      85,
+    );
+  }
+  if (s.videoBinding?.state === "focused" && !s.performance)
+    add("performance", "Focused clip has no source-linked body proposals", 100);
   if (s.motion) {
     const limits = {
       handHeight: [0.35, 3.5],
@@ -700,6 +712,8 @@ export function parse(text) {
     (s.motion.version !== 1 || !s.motion.rigs || !Array.isArray(s.motion.keys))
   )
     throw Error("Unsupported motion schema");
+  if (s.performance && validateFocus(s.performance, s).length)
+    throw Error("Invalid source-linked body proposals");
   validate(s);
   s.approval = null;
   s.reviewedRevision = null;

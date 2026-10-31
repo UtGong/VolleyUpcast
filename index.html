@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'"
     />
     <meta
       name="description"
@@ -123,6 +123,9 @@
             keyframes. Contact windows are approximate; court placement and
             hidden depth require review. This is not automatic reconstruction.
           </p>
+          <button id="try-focus-sample" class="primary">
+            Try local player tracking (~24 MB first use)
+          </button>
           <button id="sample-match" class="primary">
             Load real match example
           </button>
@@ -201,8 +204,8 @@
               <div>
                 <h2>Video-assisted reconstruction</h2>
                 <p>
-                  Manual observations, explicit hidden information. No automatic
-                  pose or depth claims.
+                  Tap one important player, then describe what to follow. Body
+                  pose runs locally; hidden depth remains inferred.
                 </p>
               </div>
               <label class="button primary"
@@ -213,6 +216,7 @@
                   hidden
               /></label>
             </div>
+
             <div id="video-binding" class="motion-proposal" role="status"></div>
             <button id="begin-reconstruction" hidden>
               Start manual reconstruction with unresolved placements
@@ -243,56 +247,123 @@
                   value="0" /></label
               ><button id="seek-source">Seek source time</button>
             </div>
-            <div class="toolbar">
+            <section class="focus-panel" aria-label="Follow a selected player">
+              <h3>1. Tap a player · 2. Follow · 3. Refine by voice</h3>
+              <p class="hint">
+                First use loads about 24 MB for pose and 55 MB for speech from
+                this site. All processing stays on this device. One player, up
+                to 6 seconds. No ball reconstruction or calibrated court depth.
+              </p>
+              <div class="toolbar">
+                <button id="select-player" class="primary">
+                  Tap player in frame
+                </button>
+                <label
+                  >Player label<input
+                    id="focus-label"
+                    value="Player 1"
+                    maxlength="60"
+                /></label>
+                <label
+                  >From (source s)<input
+                    id="focus-start"
+                    type="number"
+                    min="0"
+                    step="0.05"
+                    value="0"
+                /></label>
+                <label
+                  >To (source s)<input
+                    id="focus-end"
+                    type="number"
+                    min="0"
+                    step="0.05"
+                    value="3"
+                /></label>
+                <button id="follow-player">
+                  Follow selected player locally
+                </button>
+                <button id="cancel-inference" disabled>
+                  Cancel processing
+                </button>
+                <button id="next-gap">Show next unclear frame</button>
+              </div>
+              <p id="focus-status" role="status">
+                Load a clip, pause at a clear view, and tap the player's torso.
+                On an overlap or identity error, seek there and tap the same
+                player again, then rerun.
+              </p>
+              <progress id="focus-progress" value="0" max="1" hidden></progress>
               <label
-                >Annotation<select id="observation-kind">
-                  <option>court landmark</option>
-                  <option>player</option>
-                  <option>ball</option>
-                  <option>contact</option>
-                  <option>transcript event</option>
-                  <option>pose joint</option>
-                </select></label
-              ><label
-                >Image joint (pose joint mode)<select
-                  id="pose-joint"
-                ></select></label
-              ><label
-                >Note / actor ID<input
-                  id="observation-note"
-                  placeholder="e.g. M3, hidden contact, far-left baseline" /></label
-              ><label
-                >Image x [0–1]<input
-                  id="image-x"
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.5" /></label
-              ><label
-                >Image y [0–1]<input
-                  id="image-y"
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value="0.5" /></label
-              ><button id="add-observation">Add observation</button>
-            </div>
-            <div class="toolbar">
-              <button id="new-calibration">New camera calibration</button
-              ><button id="camera-cut">Mark camera cut</button
-              ><button id="align-contact">
-                Align selected contact to frame
-              </button>
-            </div>
-            <p class="hint">
-              Landmarks are observations only. No homography is solved in this
-              MVP. A court plane cannot determine airborne ball height. Use
-              contact height/range fields and coach review. A camera cut ends
-              calibration validity.
-            </p>
-            <div id="observations"></div>
+                >Coach instruction<input
+                  id="focus-cue"
+                  placeholder="Follow this player / hands higher / jump earlier"
+              /></label>
+              <div class="toolbar">
+                <button id="apply-focus-cue">Preview instruction</button
+                ><button id="confirm-focus" disabled>
+                  Confirm motion variation</button
+                ><button id="discard-focus" disabled>Discard preview</button>
+              </div>
+              <p id="focus-cue-status" role="status">
+                Model observations remain unchanged when you create a coach
+                variation.
+              </p>
+              <div id="focus-choices" class="toolbar"></div>
+            </section>
+            <details>
+              <summary>Advanced manual annotations and camera records</summary>
+              <div class="toolbar">
+                <label
+                  >Annotation<select id="observation-kind">
+                    <option>court landmark</option>
+                    <option>player</option>
+                    <option>ball</option>
+                    <option>contact</option>
+                    <option>transcript event</option>
+                    <option>pose joint</option>
+                  </select></label
+                ><label
+                  >Image joint (pose joint mode)<select
+                    id="pose-joint"
+                  ></select></label
+                ><label
+                  >Note / actor ID<input
+                    id="observation-note"
+                    placeholder="e.g. M3, hidden contact, far-left baseline" /></label
+                ><label
+                  >Image x [0–1]<input
+                    id="image-x"
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.5" /></label
+                ><label
+                  >Image y [0–1]<input
+                    id="image-y"
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.5" /></label
+                ><button id="add-observation">Add observation</button>
+              </div>
+              <div class="toolbar">
+                <button id="new-calibration">New camera calibration</button
+                ><button id="camera-cut">Mark camera cut</button
+                ><button id="align-contact">
+                  Align selected contact to frame
+                </button>
+              </div>
+              <p class="hint">
+                Landmarks are observations only. No homography is solved in this
+                MVP. A court plane cannot determine airborne ball height. Use
+                contact height/range fields and coach review. A camera cut ends
+                calibration validity.
+              </p>
+              <div id="observations"></div>
+            </details>
           </div>
           <div id="review-pane" class="pane" hidden>
             <div class="panel-top">
@@ -354,11 +425,25 @@
               ><button id="save-transcript">Export transcript .txt</button
               ><button id="save-audio" disabled>Save recorded audio</button>
             </div>
+            <div class="toolbar">
+              <label class="button"
+                >Import local voice note<input
+                  id="voice-file"
+                  type="file"
+                  accept="audio/*"
+                  hidden /></label
+              ><button id="transcribe-audio" disabled>Transcribe locally</button
+              ><button id="use-voice">
+                Use transcript as player instruction
+              </button>
+            </div>
+            <p id="speech-status" role="status">No voice note processed.</p>
             <audio id="audio" controls></audio>
             <p class="hint">
-              Local transcription is not bundled. Record audio, then type or
-              import a transcript. Speech offset aligns transcript events to the
-              rally; text is never automatically treated as verified motion.
+              Local Whisper transcribes short English voice notes on this
+              device. Review its text before applying it. Silence or poor audio
+              may fail; typed instructions always work. No remote speech
+              fallback.
             </p>
           </section>
         </section>

@@ -695,3 +695,26 @@ dialog p {
   padding: 9px;
   border-radius: 7px;
 }
+
+.focus-panel {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid #d5e3ef;
+  border-radius: 12px;
+  background: #f5f9ff;
+}
+.focus-panel h3 {
+  margin-top: 0;
+}
+.focus-panel input[type="number"] {
+  width: 100px;
+}
+.focus-panel progress {
+  width: 100%;
+  margin: 10px 0;
+  accent-color: #345acb;
+}
+.focus-panel > label {
+  display: grid;
+  gap: 6px;
+}

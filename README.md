@@ -2,7 +2,7 @@
 
 **A local research prototype for turning coach intent into reviewed volleyball scenes.** Draw a play or annotate a local video, describe the tactic, review uncertain information, then export an actual animated WebM. “Upcast” describes upgrading a flat plan into a 3D tactical illustration.
 
-This is a working browser application, not an automatic monocular reconstruction system. It uses a perspective projection of a 3D court/net and articulated template players. It does not estimate measured joint motion, solve ball physics, transcribe speech, or infer hidden video depth.
+This working browser prototype combines a coach-reviewed tactics board with an experimental on-device, selected-player video workflow. MediaPipe proposes body landmarks from source frames; local Whisper transcribes English voice notes. It does not recover measured biomechanics, calibrated hidden depth, exact jump height, or ball physics from a single camera. Board scenes use articulated templates; video body proposals use a separate neutral stage.
 
 ## Run
 
@@ -74,6 +74,20 @@ For clips up to 128MiB, a browser-local SHA-256 content identity lets the exact 
 
 Foot-plant constraints and fixed-length limb solving catch supported reach, contact, turn and foot-sliding contradictions. These checks cannot establish biomechanical accuracy. Saved scenes preserve motion parameters, rig provenance and image observations. Earlier scenes without motion data, and earlier seven-dimension rigs, continue to load with explicit template defaults. An unconfirmed pose preview blocks scene review and export. The packaged synthetic reference clip uses the earlier template body; the finer mannequin is a new illustrative rendering, not a measured match to that clip's joint motion.
 
+## Follow one important player with little annotation
+
+For a quick public test, **Try local player tracking** loads the licensed UVG clip, uses one clearly labelled preset target tap, and actually runs the local model. It clears the supplied manual 3D scene first; an inference failure leaves no claimed reconstruction. The preset selects a visible near-court receiver, not an occluded net attacker.
+
+1. Open **Video reconstruction** and load a local clip (or the licensed real match example). Pause at a clear torso view, click **Tap player in frame**, then tap that person. Choose up to six seconds around that frame. One player is supported in this release; it does not claim reliable multi-person tracking.
+2. Click **Follow selected player locally**, or type “follow this player” and preview the instruction. A worker samples the actual video at about 20 proposals/second, starting at the selected identity anchor and tracking forward/backward. The UI remains usable, reports progress and supports Cancel. The 2D overlay shows model proposals; orange means low visibility, not a calibrated error probability. Inspect identity: a high score can still be wrong. **Show next unclear frame** seeks a flagged interval; tap the same person there and rerun to repair it. There is no per-joint annotation requirement.
+3. Record a short English voice note or import audio. Whisper transcribes it locally. Check the editable words, then **Use transcript as player instruction**. “Hands higher” and “jump earlier” stage bounded illustrative variations for that player and current source time. Preview, confirm or discard; confirmed changes invalidate export approval and support Undo. “Block wiser” asks one concise question. This is a small deterministic cue vocabulary, not general text-to-motion generation.
+4. Compare source and 3D. Both arms and legs use source-linked proposals with fixed estimated bone lengths. 2D limb directions lead retargeting; model Z is damped and bounded as an explicit illustration assumption. Root travel follows image-space hip displacement. No court or floor is invented. Occlusion/identity gaps remain gaps, without template substitutions. Other people and ball contacts are omitted.
+5. **Done editing → Review → Illustrative mode → Confirm → Export playable WebM**. This workflow always blocks Final mode because single-view depth remains inferred. JSON preserves source times, selection anchors, raw 2D/model-3D proposals, visibility, model identity and confirmed variations. Reopening the exact local clip reconnects by SHA-256; different clips clear the reconstruction.
+
+Pose and speech runtimes/weights are self-hosted, lazily loaded only after the user invokes them (roughly 24 MB pose, 55 MB speech). No media uploads, telemetry, external CDN imports or remote speech fallback. CPU/WASM workers need a modern browser; first load and processing can take time, especially mobile. Failed/unclear inference preserves the previous scene and asks for a clearer frame or shorter interval. Silence/invalid audio reports an error; typed instructions remain available. Recording requires microphone permission and HTTPS or localhost. ASR text is never treated as verified motion automatically.
+
+The approved setup transfer total is recorded in `models/manifest.json`, below 300 MB. [Third-party notices](THIRD_PARTY_NOTICES.md) identify exact model/runtime versions, licenses and modifications. Private clips and derived QA remain ignored and excluded from the static build. The real licensed fixture remains separately attributed.
+
 ## What the MVP models
 
 - Versioned deterministic JSON, stable actors, timed polylines, contact anchors and partial-order dependencies.
@@ -94,7 +108,7 @@ See [architecture](docs/ARCHITECTURE.md), [research and evaluation](docs/RESEARC
 
 2D→3D sports playbooks and sketch-plus-speech interfaces already exist. The proposed research question is whether preserving volleyball intent and asking targeted questions reduces unsupported assumptions and correction burden. This prototype is an instrument for that question; no novelty or accuracy is established by this code.
 
-Next adapters: explicit on-device speech transcription, robust court calibration, coach-assisted tracking, source-linked transcript spans, branch-specific playback, measured motion retargeting, configurable net/rules, frame-accurate decoding and an accessible non-canvas animation alternative. These are not implemented.
+Remaining work: robust multi-player identity tracking, calibrated court placement and foot contacts, validated motion accuracy, reliable fingers/occluded joints, broader speech intent, source-linked transcript spans, branch-specific playback, configurable net/rules, frame-accurate decoding and an accessible non-canvas animation alternative. These are not implemented.
 
 ## License
 

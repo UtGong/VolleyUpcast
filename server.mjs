@@ -5,6 +5,9 @@ const root = resolve(process.env.SERVE_DIST === "1" ? "dist" : ".");
 const mime = {
   ".html": "text/html",
   ".js": "text/javascript",
+  ".mjs": "text/javascript",
+  ".wasm": "application/wasm",
+  ".mp4": "video/mp4",
   ".css": "text/css",
   ".json": "application/json",
   ".webm": "video/webm",
@@ -12,6 +15,11 @@ const mime = {
 };
 createServer(async (req, res) => {
   try {
+    if (!["GET", "HEAD"].includes(req.method)) {
+      res.writeHead(405, { Allow: "GET, HEAD" });
+      res.end("Static local app; no upload endpoint");
+      return;
+    }
     const url = new URL(req.url, "http://localhost");
     const file = resolve(
       root,
@@ -24,9 +32,9 @@ createServer(async (req, res) => {
       "Content-Type": mime[extname(file)] || "application/octet-stream",
       "Cache-Control": "no-store",
       "Content-Security-Policy":
-        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'",
+        "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'",
     });
-    res.end(data);
+    res.end(req.method === "HEAD" ? undefined : data);
   } catch {
     res.writeHead(404);
     res.end("Not found");

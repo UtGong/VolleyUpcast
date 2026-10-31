@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "totalTransferredBytes": 100416271,
+  "approvedCeilingBytes": 300000000,
+  "sources": [
+    {
+      "name": "@mediapipe/tasks-vision",
+      "version": "1.2.0",
+      "license": "Apache-2.0",
+      "url": "https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-1.2.0.tgz",
+      "integrity": "sha512-7+dr9GbGyTtcuLh11wE5TOn4dNFRncIT9oAWs72620WX99KW5FfzF6rFJ/ChTgXG9vJ6dCiE9FrEEY4CnwPWKQ==",
+      "filename": "tasks-vision-1.2.0.tgz",
+      "bytes": 12569614,
+      "sha256": "535175845f4ef8509b0240a0831abe8bcb3fa882accda6d080a4ede562a50a71"
+    },
+    {
+      "name": "@huggingface/transformers",
+      "version": "4.3.2",
+      "license": "Apache-2.0",
+      "url": "https://registry.npmjs.org/@huggingface/transformers/-/transformers-4.3.2.tgz",
+      "integrity": "sha512-V3+dqf3iWlRYJ9I9GreM3zGQd0lAXnnoPeddmkOQYWAEE4l/+Fi6p7tx/qVUJlKQgLXGim2W76rTOzz+eC0i7g==",
+      "filename": "transformers-4.3.2.tgz",
+      "bytes": 2273070,
+      "sha256": "5414fb47b11ae2a8c10a3aac68f833e6fb6e9bde03e9e612ad7da3ea9e9d2663"
+    },
+    {
+      "name": "onnxruntime-web",
+      "version": "1.31.0-dev.20260914-8d85527a0",
+      "license": "MIT",
+      "url": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.31.0-dev.20260914-8d85527a0.tgz",
+      "integrity": "sha512-Iy7rtadoBgxS/LLvDr3QW38DB1PNXRnr0GJMcL0TAt7c9qjgVQl83UlGCVyeAnK2InpmW8Uc3PL8XIuqtDeF6g==",
+      "filename": "onnxruntime-web-1.31.0-dev.20260914-8d85527a0.tgz",
+      "bytes": 33185781,
+      "sha256": "0de27582f3e3189dec4a2082513a0af1ea79ae7fd3039bbfe634a526e173cbe0"
+    },
+    {
+      "name": "Whisper tiny.en onnx/encoder_model_quantized.onnx",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/onnx/encoder_model_quantized.onnx",
+      "filename": "whisper/onnx/encoder_model_quantized.onnx",
+      "bytes": 10124913,
+      "sha256": "8cc3c6f8563d1b3fbd2c5af9f64c2bed8b020bc593c402d1ef53b9f08fbf1b90"
+    },
+    {
+      "name": "Whisper tiny.en onnx/decoder_model_merged_quantized.onnx",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/onnx/decoder_model_merged_quantized.onnx",
+      "filename": "whisper/onnx/decoder_model_merged_quantized.onnx",
+      "bytes": 30727382,
+      "sha256": "dbb2e063b7fbc41d9803b9698f93ecb035c50cbb3fb87b56cb131e4a5eb99059"
+    },
+    {
+      "name": "Whisper tiny.en config.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/config.json",
+      "filename": "whisper/config.json",
+      "bytes": 2202,
+      "sha256": "37a1073be00d19118c06557896c7c148598f4d8277edc0f5bc07c9f5554839f1"
+    },
+    {
+      "name": "Whisper tiny.en generation_config.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/generation_config.json",
+      "filename": "whisper/generation_config.json",
+      "bytes": 1590,
+      "sha256": "132c95ba9db45f4498f2eab3fea7c1d6a174005010f8f6b7d20cfd5e9795996b"
+    },
+    {
+      "name": "Whisper tiny.en preprocessor_config.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/preprocessor_config.json",
+      "filename": "whisper/preprocessor_config.json",
+      "bytes": 339,
+      "sha256": "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"
+    },
+    {
+      "name": "Whisper tiny.en tokenizer.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/tokenizer.json",
+      "filename": "whisper/tokenizer.json",
+      "bytes": 2128494,
+      "sha256": "c6ee8f089220a5b1188f6426456772572671c6141ae007eecb83c6a8349f5deb"
+    },
+    {
+      "name": "Whisper tiny.en tokenizer_config.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/tokenizer_config.json",
+      "filename": "whisper/tokenizer_config.json",
+      "bytes": 835,
+      "sha256": "e082c1ad251541bf277967a703252cddd4bb37a71a43737e03d050c22ec08238"
+    },
+    {
+      "name": "Whisper tiny.en special_tokens_map.json",
+      "license": "Apache-2.0 (conversion metadata), MIT (upstream Whisper)",
+      "url": "https://huggingface.co/Xenova/whisper-tiny.en/resolve/79fb389fc764e7c395bd330e9531d9d32ada7049/special_tokens_map.json",
+      "filename": "whisper/special_tokens_map.json",
+      "bytes": 1717,
+      "sha256": "7da611d517fe29e77335b8d8384e71795fb7b37cbf95bdc3b5252fa7e09dd1f8"
+    },
+    {
+      "name": "MediaPipe Full pose bundle",
+      "license": "Apache-2.0",
+      "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task",
+      "filename": "pose_landmarker_full.task",
+      "expectedBytes": 9398198,
+      "expectedMd5": "83879689d373d143be094c972355e48e",
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    }
+  ],
+  "servedFiles": [
+    {
+      "path": "vendor/mediapipe/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "vendor/mediapipe/vision_bundle.mjs",
+      "bytes": 156344,
+      "sha256": "870da5cfc43bfcf2a8b0f14e8152dae8c7e701722e1191b0e592b94b81b4127a"
+    },
+    {
+      "path": "vendor/mediapipe/wasm/vision_wasm_module_internal.js",
+      "bytes": 334166,
+      "sha256": "60384c9014750321c0fc1d489b3329e5eaed0fcf3c328d404ecb1a6c75e89d17"
+    },
+    {
+      "path": "vendor/mediapipe/wasm/vision_wasm_module_internal.wasm",
+      "bytes": 14466676,
+      "sha256": "2e326b9d9584ac22e230c263f47e6fe694a7df1ce22a8546c72df0e5c0fc1066"
+    },
+    {
+      "path": "vendor/ort/LICENSE",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "path": "vendor/ort/ort-wasm-simd-threaded.mjs",
+      "bytes": 24381,
+      "sha256": "c57ca56328877353a575e51bbca6f18450027d6c9bf2307a2cb2c41363b4de9f"
+    },
+    {
+      "path": "vendor/ort/ort-wasm-simd-threaded.wasm",
+      "bytes": 14264838,
+      "sha256": "06ba057753da3847e4c24f02d91ab133455b0817c69a44993a9a53a2146df9e3"
+    },
+    {
+      "path": "vendor/ort/ort.wasm.bundle.min.mjs",
+      "bytes": 73123,
+      "sha256": "17b52c1ac62b421dc508b4c28b9a9675251c6e25dd512ef54b83a5e2c4242869"
+    },
+    {
+      "path": "vendor/transformers/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "vendor/transformers/transformers.web.min.js",
+      "bytes": 456251,
+      "sha256": "ca9d248edae9b54c81bc109f32a13ff98d9ddb68ccce48f49c0cde4c6791c5b1"
+    },
+    {
+      "path": "models/pose/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "models/pose/pose_landmarker_full.task",
+      "bytes": 9398198,
+      "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+    },
+    {
+      "path": "models/whisper-tiny.en/LICENSE-CONVERSION",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "models/whisper-tiny.en/LICENSE-UPSTREAM",
+      "bytes": 1063,
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d"
+    },
+    {
+      "path": "models/whisper-tiny.en/config.json",
+      "bytes": 2202,
+      "sha256": "37a1073be00d19118c06557896c7c148598f4d8277edc0f5bc07c9f5554839f1"
+    },
+    {
+      "path": "models/whisper-tiny.en/generation_config.json",
+      "bytes": 1590,
+      "sha256": "132c95ba9db45f4498f2eab3fea7c1d6a174005010f8f6b7d20cfd5e9795996b"
+    },
+    {
+      "path": "models/whisper-tiny.en/onnx/decoder_model_merged_quantized.onnx",
+      "bytes": 30727382,
+      "sha256": "dbb2e063b7fbc41d9803b9698f93ecb035c50cbb3fb87b56cb131e4a5eb99059"
+    },
+    {
+      "path": "models/whisper-tiny.en/onnx/encoder_model_quantized.onnx",
+      "bytes": 10124913,
+      "sha256": "8cc3c6f8563d1b3fbd2c5af9f64c2bed8b020bc593c402d1ef53b9f08fbf1b90"
+    },
+    {
+      "path": "models/whisper-tiny.en/preprocessor_config.json",
+      "bytes": 339,
+      "sha256": "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"
+    },
+    {
+      "path": "models/whisper-tiny.en/special_tokens_map.json",
+      "bytes": 1717,
+      "sha256": "7da611d517fe29e77335b8d8384e71795fb7b37cbf95bdc3b5252fa7e09dd1f8"
+    },
+    {
+      "path": "models/whisper-tiny.en/tokenizer.json",
+      "bytes": 2128494,
+      "sha256": "c6ee8f089220a5b1188f6426456772572671c6141ae007eecb83c6a8349f5deb"
+    },
+    {
+      "path": "models/whisper-tiny.en/tokenizer_config.json",
+      "bytes": 835,
+      "sha256": "e082c1ad251541bf277967a703252cddd4bb37a71a43737e03d050c22ec08238"
+    }
+  ],
+  "licenseSources": [
+    {
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/main/LICENSE",
+      "destination": "vendor/ort/LICENSE",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openai/whisper/main/LICENSE",
+      "destination": "models/whisper-tiny.en/LICENSE-UPSTREAM",
+      "bytes": 1063,
+      "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d"
+    }
+  ],
+  "servedBytes": 82209017
+}
