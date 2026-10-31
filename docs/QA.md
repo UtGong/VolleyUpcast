@@ -2,7 +2,7 @@
 
 ## Automated checks
 
-2026-10-31: model unit tests (13), strict domain-model type checking, JavaScript syntax checks, static build passed. Tests include deterministic round trip; contact endpoints and peak height; actor interpolation; approval/revision invalidation; explicit illustrative mode; wrong actors; contradictory partial order; invalid paths/clocks; model bounds and net/arc contradictions; numeric ranges; camera-cut validity; malformed schema handling. Formatting check added to the final `npm run check` run.
+2026-10-31: model unit tests (14), strict domain-model type checking, JavaScript syntax checks, static build passed. Tests include deterministic round trip; contact endpoints and peak height; actor interpolation; approval/revision invalidation; explicit illustrative mode; wrong actors; contradictory partial order; invalid paths/clocks; model bounds and net/arc contradictions; numeric ranges; camera-cut validity; malformed schema handling. Formatting check added to the final `npm run check` run.
 
 ## Real browser observations
 
@@ -26,3 +26,5 @@ Additional responsive, persistence, interruption and final-source checks are app
 - Final source accounts for source-frame letterboxing in annotation coordinates; media source files remain local only.
 - Desktop and mobile screenshots are stored in ignored `qa-local/` for local handoff; no user data or media is committed.
 - Browser console error log was empty in the inspected run. Full UI static typing, cross-browser media behavior, real microphone permission/capture, and a full automated browser regression suite remain unverified.
+
+- Final import hardening rejects non-finite contact numeric types and unsupported duration/revision before UI rendering; corresponding regression test passed.

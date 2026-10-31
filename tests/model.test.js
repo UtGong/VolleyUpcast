@@ -136,3 +136,12 @@ test("duplicate actors, invalid paths and bad clocks blocked", () => {
   s.clocks.animationRate.value = 0;
   assert(validate(s).length >= 3);
 });
+
+test("malformed import duration and contact numeric types fail before rendering", () => {
+  const s = demo();
+  s.duration = 0;
+  assert.throws(() => parse(serialize(s)), /duration/);
+  const bad = demo();
+  bad.contacts[0].time.value = "oops";
+  assert.throws(() => parse(serialize(bad)), /finite/);
+});

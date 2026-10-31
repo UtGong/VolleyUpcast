@@ -166,6 +166,12 @@ export function validate(s) {
   /** @param {string} id @param {string} message @param {number} rank @param {boolean} [critical] */ const add =
     (id, message, rank, critical = true) =>
       issues.push({ id, message, rank, critical });
+  if (!Number.isFinite(s.duration) || s.duration <= 0 || s.duration > 120)
+    add(
+      "duration",
+      "Supported rally duration is greater than zero and at most 120 seconds",
+      100,
+    );
   const ids = new Set(s.actors.map((a) => a.id));
   if (ids.size !== s.actors.length)
     add("actors", "Actor IDs must be unique", 100);
@@ -396,6 +402,18 @@ export function parse(text) {
     !Array.isArray(s.branches)
   )
     throw Error("Unsupported scenario schema");
+  if (
+    !Number.isFinite(s.duration) ||
+    s.duration <= 0 ||
+    s.duration > 120 ||
+    !Number.isInteger(s.revision) ||
+    s.revision < 1
+  )
+    throw Error("Invalid duration or revision");
+  for (const c of s.contacts)
+    for (const key of ["time", "height", "x", "z", "apex"])
+      if (!Number.isFinite(c[key]?.value))
+        throw Error("Contact numeric fields must be finite");
   validate(s);
   s.approval = null;
   s.reviewedRevision = null;
