@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "id": "synthetic-slide",
+  "title": "Middle slide · synthetic study",
+  "revision": 1,
+  "approval": null,
+  "reviewedRevision": null,
+  "duration": 5,
+  "actors": [
+    {
+      "id": "P1",
+      "role": {
+        "value": "passer",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 1,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 2,
+            "z": 6
+          },
+          {
+            "t": 2.8,
+            "x": 2,
+            "z": 6
+          },
+          {
+            "t": 5,
+            "x": 2,
+            "z": 6
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "S2",
+      "role": {
+        "value": "setter",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 2,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 4.5,
+            "z": 1.4
+          },
+          {
+            "t": 2.8,
+            "x": 4.5,
+            "z": 1.4
+          },
+          {
+            "t": 5,
+            "x": 4.5,
+            "z": 1.4
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "M3",
+      "role": {
+        "value": "middle blocker",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 3,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 3.5,
+            "z": 4.5
+          },
+          {
+            "t": 2.8,
+            "x": 7,
+            "z": 1
+          },
+          {
+            "t": 5,
+            "x": 7.7,
+            "z": 1.8
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "O4",
+      "role": {
+        "value": "outside hitter",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 4,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 1,
+            "z": 2
+          },
+          {
+            "t": 2.8,
+            "x": 1,
+            "z": 2
+          },
+          {
+            "t": 5,
+            "x": 1,
+            "z": 2
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "C5",
+      "role": {
+        "value": "coverage",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 5,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 7,
+            "z": 5
+          },
+          {
+            "t": 2.8,
+            "x": 7,
+            "z": 5
+          },
+          {
+            "t": 5,
+            "x": 7,
+            "z": 5
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "B6",
+      "role": {
+        "value": "blocker",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "rotation": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "path": {
+        "value": [
+          {
+            "t": 0,
+            "x": 6,
+            "z": -1
+          },
+          {
+            "t": 2.8,
+            "x": 6,
+            "z": -1
+          },
+          {
+            "t": 5,
+            "x": 6,
+            "z": -1
+          }
+        ],
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    }
+  ],
+  "contacts": [
+    {
+      "id": "pass",
+      "after": [],
+      "actor": {
+        "value": "P1",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "action": {
+        "value": "forearm pass",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "time": {
+        "value": 0.5,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "x": {
+        "value": 2,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "z": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "height": {
+        "value": 0.9,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "apex": {
+        "value": 3.6,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "set",
+      "after": ["pass"],
+      "actor": {
+        "value": "S2",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "action": {
+        "value": "set",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "time": {
+        "value": 1.8,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "x": {
+        "value": 4.5,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "z": {
+        "value": 1.4,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "height": {
+        "value": 2.1,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "apex": {
+        "value": 3.5,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "attack",
+      "after": ["set"],
+      "actor": {
+        "value": "M3",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "action": {
+        "value": "slide attack",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "time": {
+        "value": 3,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "x": {
+        "value": 7.05,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "z": {
+        "value": 1.08,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "height": {
+        "value": 2.9,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "apex": {
+        "value": 3.1,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    },
+    {
+      "id": "floor",
+      "after": ["attack"],
+      "actor": {
+        "value": "",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "action": {
+        "value": "landing",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "time": {
+        "value": 4.3,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "x": {
+        "value": 6,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "z": {
+        "value": -6,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "height": {
+        "value": 0,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      },
+      "apex": {
+        "value": 0,
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    }
+  ],
+  "ball": {
+    "category": {
+      "value": "volleyball",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "action": {
+      "value": "pass / set / attack",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "style": {
+      "value": "illustrative arc",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "tempo": {
+      "value": "coach-defined slide tempo",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "spin": {
+      "value": "unspecified",
+      "status": "flexible-not-applicable",
+      "source": "Not needed for this tactical illustration"
+    }
+  },
+  "tactic": {
+    "name": {
+      "value": "Middle slide",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "primitive": {
+      "value": "slide attack",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "playerId": {
+      "value": "M3",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "setterId": {
+      "value": "S2",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "approachStartCue": {
+      "value": "After passer contact",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "approachPath": {
+      "value": "Edit M3 path on board",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "takeoffRegion": {
+      "value": "x 6.5–7.3; z 0.8–1.5",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "landingRegion": {
+      "value": "x 7–8.2; z 1–2.5",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "contactTiming": {
+      "value": "Use attack contact anchor",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "contactHeightRange": {
+      "value": "2.7–3.2 m",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "setTempo": {
+      "value": "Set 1.8s → attack 3.0s; editable",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "attackTarget": {
+      "value": "Opponent court x 6; z −6",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "handednessTechnique": {
+      "value": "Right hand; illustrative one-foot slide, not universal",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "blockerBehavior": {
+      "value": "B6 stationary template; edit path",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "coverageBehavior": {
+      "value": "C5 holds coverage; edit path",
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "jointDetail": {
+      "value": "Template limbs only",
+      "status": "flexible-not-applicable",
+      "source": "No measured joint kinematics"
+    }
+  },
+  "transcript": {
+    "value": "Synthetic coach: P1 passes to S2. M3 starts a slide after the pass; set behind to M3, attack to deep zone. Review timing and hidden contact height.",
+    "status": "approved-illustrative-default",
+    "source": "Synthetic template; coach must review"
+  },
+  "clocks": {
+    "videoOffset": {
+      "value": 0,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "speechOffset": {
+      "value": 0,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "animationRate": {
+      "value": 1,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    },
+    "fps": {
+      "value": 30,
+      "status": "approved-illustrative-default",
+      "source": "Synthetic template; coach must review"
+    }
+  },
+  "observations": [],
+  "calibrations": [],
+  "branches": [
+    {
+      "id": "primary",
+      "label": "Primary tactic",
+      "condition": {
+        "value": "Coach-selected primary pattern",
+        "status": "approved-illustrative-default",
+        "source": "Synthetic template; coach must review"
+      }
+    }
+  ]
+}

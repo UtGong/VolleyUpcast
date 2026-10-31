@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Local volleyball intent capture and coach-reviewed 3D tactical scenes"
+    />
+    <title>VolleyUpcast · Research studio</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/" aria-label="VolleyUpcast home"
+        ><span class="mark">↗</span>Volley<span>Upcast</span></a
+      ><span class="pill">RESEARCH STUDIO · LOCAL ONLY</span>
+      <div class="head-actions">
+        <button id="undo">↶ Undo</button><button id="redo">↷ Redo</button
+        ><button id="save">Save scene</button
+        ><label class="button"
+          >Open scene<input
+            id="load"
+            type="file"
+            accept=".json,application/json"
+            hidden
+        /></label>
+      </div>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">FROM COACH INTENT TO COURT MOTION</p>
+          <h1>Make the play. Keep the intent.</h1>
+          <p>
+            Sketch the rally, add what you know, and review every assumption
+            before casting it in 3D.
+          </p>
+        </div>
+        <label
+          >Study template<select id="template">
+            <option value="slide">Middle slide attack</option>
+            <option value="rally">Pass → set → attack</option>
+          </select></label
+        >
+      </section>
+      <div id="notice" role="status" aria-live="polite">
+        Synthetic example loaded. No media leaves your browser.
+      </div>
+      <nav class="tabs" aria-label="Workflow">
+        <button data-tab="board" class="active">01 · Tactics board</button
+        ><button data-tab="video">02 · Video reconstruction</button
+        ><button data-tab="review">
+          03 · Review & cast <span id="issue-count"></span>
+        </button>
+      </nav>
+      <div class="studio">
+        <section class="work">
+          <div id="board-pane" class="pane">
+            <div class="panel-top">
+              <div>
+                <h2>Tactics board</h2>
+                <p>9 × 18m court · blue near team · orange opponent</p>
+              </div>
+              <label>Selected actor<select id="actor"></select></label>
+            </div>
+            <div class="toolbar">
+              <label
+                >Tool<select id="tool">
+                  <option value="path">Draw player path</option>
+                  <option value="ball">Place ball contact</option>
+                </select></label
+              ><label
+                >Path start (s)<input
+                  id="path-start"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value="0" /></label
+              ><label
+                >Path end (s)<input
+                  id="path-end"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value="3" /></label
+              ><button id="clear-path">Reset selected path</button>
+            </div>
+            <canvas
+              id="board"
+              width="900"
+              height="620"
+              aria-label="Tactics court. Draw a selected player path or place a selected ball contact."
+              tabindex="0"
+            ></canvas>
+            <p class="hint">
+              Drag on the court to draw a path. Ball tool places the selected
+              contact. Numeric path and contact editors provide keyboard access.
+            </p>
+            <details>
+              <summary>Selected player · role, rotation & timed path</summary>
+              <div id="actor-fields"></div>
+              <label
+                >Timed path JSON (t seconds, x metres, z metres)<textarea
+                  id="path-json"
+                  rows="4"
+                ></textarea></label
+              ><button id="apply-path">Apply path</button>
+            </details>
+          </div>
+          <div id="video-pane" class="pane" hidden>
+            <div class="panel-top">
+              <div>
+                <h2>Video-assisted reconstruction</h2>
+                <p>
+                  Manual observations, explicit hidden information. No automatic
+                  pose or depth claims.
+                </p>
+              </div>
+              <label class="button primary"
+                >Load local video<input
+                  id="video-file"
+                  type="file"
+                  accept="video/*"
+                  hidden
+              /></label>
+            </div>
+            <div class="video-stage">
+              <video id="video" controls playsinline></video
+              ><canvas
+                id="annotations"
+                width="900"
+                height="506"
+                aria-label="Click video frame to add a normalized image observation"
+                tabindex="0"
+              ></canvas>
+            </div>
+            <div class="toolbar">
+              <button id="frame-back">← Frame</button
+              ><button id="frame-next">Frame →</button
+              ><button id="align-video">Align frame to rally playhead</button
+              ><span id="video-clock">Video 0.000s</span>
+            </div>
+            <div class="toolbar">
+              <label
+                >Annotation<select id="observation-kind">
+                  <option>court landmark</option>
+                  <option>player</option>
+                  <option>ball</option>
+                  <option>contact</option>
+                  <option>transcript event</option>
+                </select></label
+              ><label
+                >Note / actor ID<input
+                  id="observation-note"
+                  placeholder="e.g. M3, hidden contact, far-left baseline" /></label
+              ><label
+                >Image x [0–1]<input
+                  id="image-x"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.5" /></label
+              ><label
+                >Image y [0–1]<input
+                  id="image-y"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value="0.5" /></label
+              ><button id="add-observation">Add observation</button>
+            </div>
+            <div class="toolbar">
+              <button id="new-calibration">New camera calibration</button
+              ><button id="camera-cut">Mark camera cut</button
+              ><button id="align-contact">
+                Align selected contact to frame
+              </button>
+            </div>
+            <p class="hint">
+              Landmarks are observations only. No homography is solved in this
+              MVP. A court plane cannot determine airborne ball height. Use
+              contact height/range fields and coach review. A camera cut ends
+              calibration validity.
+            </p>
+            <div id="observations"></div>
+          </div>
+          <div id="review-pane" class="pane" hidden>
+            <div class="panel-top">
+              <div>
+                <h2>Review the intent</h2>
+                <p id="review-status">
+                  Finish editing to review this revision.
+                </p>
+              </div>
+              <button id="done" class="primary">Done editing → Review</button>
+            </div>
+            <div id="questions"></div>
+            <div class="approval-box">
+              <h3>Choose the meaning of this export</h3>
+              <label class="check"
+                ><input id="illustrative" type="checkbox" />Illustrative mode:
+                explicitly allow uncertain values for a labelled tactical
+                illustration.</label
+              >
+              <p>
+                Template defaults remain visible in the provenance ledger. Final
+                mode requires critical fields to be resolved; neither mode
+                claims measured biomechanics.
+              </p>
+              <button id="confirm" class="primary">
+                Confirm reviewed scene</button
+              ><button id="export-video">Export playable WebM</button>
+              <p id="export-status">No approved export yet.</p>
+            </div>
+            <details>
+              <summary>Full field provenance & dependency ledger</summary>
+              <div id="ledger"></div>
+            </details>
+          </div>
+          <section class="transcript">
+            <div class="panel-top">
+              <div>
+                <h2>Coach notes & voice</h2>
+                <p>
+                  Editable transcript. No remote speech service or paid API.
+                </p>
+              </div>
+              <label class="button"
+                >Import text<input
+                  id="transcript-file"
+                  type="file"
+                  accept=".txt,text/plain"
+                  hidden
+              /></label>
+            </div>
+            <textarea
+              id="transcript"
+              rows="3"
+              aria-label="Editable coach transcript"
+            ></textarea>
+            <div class="toolbar">
+              <button id="record">Record microphone locally</button
+              ><button id="stop-record" disabled>Stop recording</button
+              ><button id="save-transcript">Export transcript .txt</button
+              ><button id="save-audio" disabled>Save recorded audio</button>
+            </div>
+            <audio id="audio" controls></audio>
+            <p class="hint">
+              Local transcription is not bundled. Record audio, then type or
+              import a transcript. Speech offset aligns transcript events to the
+              rally; text is never automatically treated as verified motion.
+            </p>
+          </section>
+        </section>
+        <aside>
+          <section class="preview">
+            <div class="panel-top">
+              <div>
+                <p class="eyebrow">LIVE SCENE</p>
+                <h2>3D court preview</h2>
+              </div>
+              <span id="approval-pill" class="pill">DRAFT</span>
+            </div>
+            <canvas
+              id="scene"
+              width="900"
+              height="620"
+              aria-label="3D projected volleyball court with template human motion"
+            ></canvas>
+            <div class="toolbar">
+              <button id="play" class="primary">▶ Play</button
+              ><button id="reset">↺</button
+              ><span id="time-label">0.00 / 5.00s</span>
+            </div>
+            <input
+              id="timeline"
+              type="range"
+              min="0"
+              max="5"
+              step="0.01"
+              value="0"
+              aria-label="Rally timeline"
+            />
+            <div id="events" class="event-strip"></div>
+            <p class="hint">
+              Articulated template motion · illustrative arcs · 2.43m net · no
+              biomechanical accuracy claim
+            </p>
+          </section>
+          <section class="inspector">
+            <div class="panel-top">
+              <h2>Contact & intent</h2>
+              <span id="revision">REV 1</span>
+            </div>
+            <label>Contact anchor<select id="contact"></select></label>
+            <div id="contact-fields"></div>
+            <details open>
+              <summary>Ball classification</summary>
+              <div id="ball-fields"></div>
+            </details>
+            <details>
+              <summary>Tactic parameters · no universal slide</summary>
+              <div id="tactic-fields"></div>
+            </details>
+            <details>
+              <summary>Independent clocks</summary>
+              <p class="hint">
+                rally = video − video offset; rally = speech − speech offset;
+                animation uses separate playback rate. Frame rate is
+                coach-provided metadata, not detected.
+              </p>
+              <div id="clock-fields"></div>
+            </details>
+            <details>
+              <summary>Conditional tactic branches</summary>
+              <div id="branches"></div>
+              <button id="add-branch">Add alternative branch</button>
+              <p class="hint">
+                Branches record coach alternatives; playback shows the primary
+                branch only.
+              </p>
+            </details>
+          </section>
+        </aside>
+      </div>
+      <footer>
+        <span>VolleyUpcast / 0.1 · Research prototype</span
+        ><span
+          >Local media only · scene JSON stores notes and annotations · review
+          before sharing</span
+        >
+      </footer>
+    </main>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
