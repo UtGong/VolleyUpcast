@@ -4,15 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'"
+    />
+    <meta
       name="description"
       content="Local volleyball intent capture and coach-reviewed 3D tactical scenes"
     />
     <title>VolleyUpcast · Research studio</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
     <header>
-      <a class="brand" href="/" aria-label="VolleyUpcast home"
+      <a class="brand" href="./" aria-label="VolleyUpcast home"
         ><span class="mark">↗</span>Volley<span>Upcast</span></a
       ><span class="pill">RESEARCH STUDIO · LOCAL ONLY</span>
       <div class="head-actions">
@@ -334,6 +338,6 @@
         >
       </footer>
     </main>
-    <script type="module" src="/src/app.js"></script>
+    <script type="module" src="./src/app.js"></script>
   </body>
 </html>

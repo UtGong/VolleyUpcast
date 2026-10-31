@@ -15,7 +15,11 @@ npm run dev
 npm run check
 ```
 
-`PORT=5190 npm run dev` selects another loopback port. `npm run build` produces `dist/`; `SERVE_DIST=1 npm run dev` serves it. The server binds only to `127.0.0.1`. No cloud deployment, new account, paid API, telemetry, external fonts, or remote speech recognition is configured.
+`PORT=5190 npm run dev` selects another loopback port. `npm run build` produces `dist/`; `SERVE_DIST=1 npm run dev` serves it. The server binds only to `127.0.0.1`. The public GitHub Pages deployment serves the same static app over HTTPS. No paid API, telemetry, external fonts, media upload endpoint, or remote speech recognition is configured.
+
+## Public testing
+
+The GitHub Pages workflow builds and checks `main`, then deploys only `dist/`. Assets and the home link use relative URLs so the same build works under `/VolleyUpcast/` and on loopback. Browser media, recordings and local draft storage remain on the testing device. Microphone recording requires HTTPS (or localhost), browser support, and a deliberate permission grant. WebM export remains browser-dependent. No service worker or server-side media storage is configured.
 
 ## Try the two workflows
 
